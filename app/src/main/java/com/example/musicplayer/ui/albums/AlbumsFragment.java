@@ -1,4 +1,4 @@
-package com.example.musicplayer.ui.dashboard;
+package com.example.musicplayer.ui.albums;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,17 +14,17 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.example.musicplayer.R;
 
-public class DashboardFragment extends Fragment {
+public class AlbumsFragment extends Fragment {
 
-    private DashboardViewModel dashboardViewModel;
+    private AlbumsViewModel albumsViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        dashboardViewModel =
-                ViewModelProviders.of(this).get(DashboardViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_dashboard, container, false);
-        final TextView textView = root.findViewById(R.id.text_dashboard);
-        dashboardViewModel.getText().observe(this, new Observer<String>() {
+        albumsViewModel =
+                ViewModelProviders.of(this).get(AlbumsViewModel.class);
+        View root = inflater.inflate(R.layout.fragment_notifications, container, false);
+        final TextView textView = root.findViewById(R.id.text_notifications);
+        albumsViewModel.getText().observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 textView.setText(s);
