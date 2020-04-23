@@ -10,7 +10,13 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import android.media.MediaPlayer;
+import android.view.View;
+import android.widget.Toast;
+
 public class MainActivity extends AppCompatActivity {
+
+    public MediaPlayer player;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +31,43 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
+    }
+
+    public void play(View v) {
+        if (player == null) {
+            player = MediaPlayer.create(this, R.raw.bigdata);
+        }
+        player.start();
+        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                stopPlayer();
+            }
+        });
+    }
+
+    public void pause(View v) {
+        if (player != null) {
+            player.pause();
+        }
+    }
+
+    public void stop(View v) {
+        stopPlayer();
+    }
+
+    private void stopPlayer() {
+        if (player != null) {
+            player.release();
+            player = null;
+            Toast.makeText(this, "Player released", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        stopPlayer();
     }
 
 }
