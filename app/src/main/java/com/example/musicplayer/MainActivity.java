@@ -2,15 +2,19 @@ package com.example.musicplayer;
 
 import android.os.Bundle;
 
+import com.example.musicplayer.ui.albums.AlbumsFragment;
+import com.example.musicplayer.ui.artists.ArtistsFragment;
+import com.example.musicplayer.ui.home.HomeFragment;
+import com.example.musicplayer.ui.playlists.PlaylistsFragment;
+import com.example.musicplayer.ui.songs.SongsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
+import androidx.fragment.app.Fragment;
 
 import android.media.MediaPlayer;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -22,16 +26,42 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // Gets the navView by ID and sets it to variable
         BottomNavigationView navView = findViewById(R.id.nav_view);
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_songs, R.id.navigation_albums,
-                R.id.navigation_artists, R.id.navigation_playlists).build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        NavigationUI.setupWithNavController(navView, navController);
+        // Creates listener to detect when nav view buttons are pressed and then changes fragment accordingly
+        navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                Fragment selectedFragment = null;
+
+                switch (menuItem.getItemId()) {
+                    case R.id.navigation_home:
+                        selectedFragment = new HomeFragment();
+                        break;
+                    case R.id.navigation_songs:
+                        selectedFragment = new SongsFragment();
+                        break;
+                    case R.id.navigation_albums:
+                        selectedFragment = new AlbumsFragment();
+                        break;
+                    case R.id.navigation_artists:
+                        selectedFragment = new ArtistsFragment();
+                        break;
+                    case R.id.navigation_playlists:
+                        selectedFragment = new PlaylistsFragment();
+                        break;
+                }
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        selectedFragment).commit();
+
+                return true;
+            }
+        });
+        // Sets default fragment to the HomeFragment so it is displayed right when the app is launched
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                new HomeFragment()).commit();
     }
+
 
     public void play(View v) {
         if (player == null) {
