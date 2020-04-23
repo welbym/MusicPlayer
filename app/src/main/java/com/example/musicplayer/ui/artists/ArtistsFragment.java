@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.musicplayer.R;
-import com.example.musicplayer.ui.albums.AlbumsViewModel;
 
 public class ArtistsFragment extends Fragment {
 
@@ -24,8 +23,8 @@ public class ArtistsFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         artistsViewModel =
                 ViewModelProviders.of(this).get(ArtistsViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_notifications, container, false);
-        final TextView textView = root.findViewById(R.id.text_notifications);
+        View root = inflater.inflate(R.layout.fragment_artists, container, false);
+        final TextView textView = root.findViewById(R.id.text_artists);
         artistsViewModel.getText().observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
