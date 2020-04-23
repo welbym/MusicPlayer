@@ -22,8 +22,8 @@ public class PlaylistsFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         playlistsViewModel =
                 ViewModelProviders.of(this).get(PlaylistsViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_notifications, container, false);
-        final TextView textView = root.findViewById(R.id.text_notifications);
+        View root = inflater.inflate(R.layout.fragment_playlists, container, false);
+        final TextView textView = root.findViewById(R.id.text_playlists);
         playlistsViewModel.getText().observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {

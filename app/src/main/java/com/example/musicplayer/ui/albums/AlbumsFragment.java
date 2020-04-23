@@ -22,8 +22,8 @@ public class AlbumsFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         albumsViewModel =
                 ViewModelProviders.of(this).get(AlbumsViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_notifications, container, false);
-        final TextView textView = root.findViewById(R.id.text_notifications);
+        View root = inflater.inflate(R.layout.fragment_albums, container, false);
+        final TextView textView = root.findViewById(R.id.text_albums);
         albumsViewModel.getText().observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
