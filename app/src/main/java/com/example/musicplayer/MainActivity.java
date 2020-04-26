@@ -9,6 +9,7 @@ import com.example.musicplayer.ui.artists.ArtistsFragment;
 import com.example.musicplayer.ui.home.HomeFragment;
 import com.example.musicplayer.ui.playlists.PlaylistsFragment;
 import com.example.musicplayer.ui.songs.Song;
+import com.example.musicplayer.ui.songs.SongAdapter;
 import com.example.musicplayer.ui.songs.SongsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -33,7 +34,14 @@ import android.net.Uri;
 import android.content.ContentResolver;
 import android.database.Cursor;
 
-public class MainActivity extends AppCompatActivity {
+import android.os.IBinder;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import com.example.musicplayer.MediaService.MediaBinder;
+
+public class MainActivity extends AppCompatActivity implements SongAdapter.OnSongListener {
 
     private static final String TAG = "MyActivity";
 
@@ -41,6 +49,10 @@ public class MainActivity extends AppCompatActivity {
 
     public MediaPlayer player;
     private ArrayList<Song> songList;
+
+    private MediaService mediaService;
+    private Intent playIntent;
+    private boolean mediaBound = false;
 
     private HomeFragment homeFragment;
     private SongsFragment songsFragment;
@@ -92,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void setFragments() {
         homeFragment = new HomeFragment();
-        songsFragment = new SongsFragment(this, songList);
+        songsFragment = new SongsFragment(this, songList, this);
         albumsFragment= new AlbumsFragment();
         artistsFragment = new ArtistsFragment();
         playlistsFragment = new PlaylistsFragment();
@@ -171,6 +183,52 @@ public class MainActivity extends AppCompatActivity {
                 return a.getTitle().compareTo(b.getTitle());
             }
         });
+    }
+
+    @Override
+    public void onSongClick(int position) {
+        mediaService.setSong(position);
+        mediaService.playSong();
+    }
+
+    public void songPicked(View view) {
+        Log.d(TAG, "Song picked");
+        mediaService.setSong(Integer.parseInt(view.getTag().toString()));
+        mediaService.playSong();
+    }
+
+    private ServiceConnection musicConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MediaBinder binder = (MediaBinder) service;
+            mediaService = binder.getService();
+            //pass list
+            mediaService.setSongList(songList);
+            mediaBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mediaBound = false;
+        }
+    };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (playIntent == null) {
+            playIntent = new Intent(this, MediaService.class);
+            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+            startService(playIntent);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopService(playIntent);
+        mediaService = null;
+        super.onDestroy();
     }
 
     public void play(View v) {

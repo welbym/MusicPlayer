@@ -28,10 +28,13 @@ public class SongsFragment extends Fragment {
     private SongsViewModel songsViewModel;
     private Context context;
     private ArrayList<Song> songList;
+    private SongAdapter.OnSongListener onSongListener;
 
-    public SongsFragment(Context setContext, ArrayList<Song> setSongList) {
+
+    public SongsFragment(Context setContext, ArrayList<Song> setSongList, SongAdapter.OnSongListener setOnSongListener) {
         context = setContext;
         songList = setSongList;
+        onSongListener = setOnSongListener;
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -42,7 +45,7 @@ public class SongsFragment extends Fragment {
         RecyclerView songListView = view.findViewById(R.id.recycler_view_songs);
         if (songListView != null) {
             Log.d(TAG, "songListView is not null :)");
-            songListView.setAdapter(new SongAdapter(context, songList));
+            songListView.setAdapter(new SongAdapter(context, songList, onSongListener));
             songListView.setLayoutManager(new LinearLayoutManager(context));
         } else {
             Log.d(TAG, "songListView is null :(");
