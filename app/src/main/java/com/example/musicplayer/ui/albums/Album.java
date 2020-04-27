@@ -10,21 +10,15 @@ public class Album {
 
     private static final String TAG = "Album";
 
-    //    private long id;
     private String album;
     private String artist;
     private ArrayList<Song> songList;
 
     public Album(final String setTitle, final String setArtist) {
-//        id = setID;
         album = setTitle;
         artist = setArtist;
         songList = new ArrayList<>();
     }
-
-//    public long getID() {
-//        return id;
-//    }
 
     public String getTitle() {
         return album;
