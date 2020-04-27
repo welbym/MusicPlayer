@@ -187,7 +187,9 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
             if (containsAlbum) {
                 albumList.get(indexAlbum).addSong(loopSong);
             } else {
-                albumList.add(new Album(loopSong.getAlbum(), loopSong.getArtist()));
+                Album addAlbum = new Album(loopSong.getAlbum(), loopSong.getArtist());
+                addAlbum.addSong(loopSong);
+                albumList.add(addAlbum);
             }
         }
         sortAlbumList();
@@ -220,7 +222,9 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
             if (containsArtist) {
                 artistList.get(indexArtist).addSong(loopSong);
             } else {
-                artistList.add(new Artist(loopSong.getArtist()));
+                Artist addArtist = new Artist(loopSong.getArtist());
+                addArtist.addSong(loopSong);
+                artistList.add(addArtist);
             }
         }
         sortArtistList();
