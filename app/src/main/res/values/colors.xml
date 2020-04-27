@@ -4,4 +4,5 @@
     <color name="colorPrimaryDark">#b74747</color>
     <color name="colorAccent">#D81B60</color>
     <color name="backgroundDark">#323232</color>
+    <color name="songTile">#232323</color>
 </resources>

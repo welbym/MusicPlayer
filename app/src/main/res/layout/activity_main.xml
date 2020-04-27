@@ -36,6 +36,7 @@
         android:layout_marginStart="8dp"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
+        android:textStyle="bold"
         android:text=""/>
 
     <TextView
@@ -75,8 +76,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="0dp"
-        android:layout_marginEnd="0dp"
         android:background="?android:attr/windowBackground"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
