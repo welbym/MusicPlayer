@@ -27,15 +27,27 @@
         android:text="@string/songs_fragment" />
 
     <TextView
-        android:id="@+id/now_playing_text"
+        android:id="@+id/now_playing_title_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_marginBottom="70dp"
+        android:layout_marginBottom="81dp"
         android:layout_marginStart="8dp"
         android:textColor="#FFFFFF"
-        android:textSize="22sp"
+        android:textSize="18sp"
+        android:text=""/>
+
+    <TextView
+        android:id="@+id/now_playing_artist_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="63dp"
+        android:layout_marginStart="18dp"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
         android:text=""/>
 
     <Button
