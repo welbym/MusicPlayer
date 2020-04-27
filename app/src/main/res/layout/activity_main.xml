@@ -26,6 +26,18 @@
         android:background="#000000"
         android:text="@string/songs_fragment" />
 
+    <TextView
+        android:id="@+id/now_playing_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="70dp"
+        android:layout_marginStart="8dp"
+        android:textColor="#FFFFFF"
+        android:textSize="22sp"
+        android:text=""/>
+
     <Button
         android:id="@+id/play_pause_button"
         android:layout_width="48dp"
