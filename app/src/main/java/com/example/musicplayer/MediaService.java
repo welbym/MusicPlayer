@@ -52,6 +52,8 @@ public class MediaService extends Service implements
 
     public void setTextViewUpdater(TextViewUpdater setTextViewUpdater) { textViewUpdater = setTextViewUpdater; }
 
+    public ArrayList<Song> getSongList() { return songList; }
+
     public class MediaBinder extends Binder {
         MediaService getService() {
             return MediaService.this;
@@ -75,6 +77,7 @@ public class MediaService extends Service implements
         //play a song
         player.reset();
         Song playSong = songList.get(songPosition);
+        textViewUpdater.updateTextView(songPosition);
         long currentSong = playSong.getID();
         Uri trackUri = ContentUris.withAppendedId(
                 android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currentSong);
