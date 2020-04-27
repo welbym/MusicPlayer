@@ -1,35 +1,52 @@
 package com.example.musicplayer.ui.albums;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.musicplayer.R;
 
+import java.util.ArrayList;
+
 public class AlbumsFragment extends Fragment {
 
-    private AlbumsViewModel albumsViewModel;
+    private static final String TAG = "AlbumFragment";
+
+    private Context context;
+    private ArrayList<Album> albumList;
+    private AlbumAdapter.OnAlbumListener onAlbumListener;
+
+    public AlbumsFragment(Context setContext, ArrayList<Album> setAlbumList, AlbumAdapter.OnAlbumListener setOnAlbumListener) {
+        context = setContext;
+        albumList = setAlbumList;
+        onAlbumListener = setOnAlbumListener;
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        albumsViewModel =
-                ViewModelProviders.of(this).get(AlbumsViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_albums, container, false);
-        final TextView textView = root.findViewById(R.id.text_albums);
-        albumsViewModel.getText().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
-        return root;
+        View view = inflater.inflate(R.layout.fragment_songs, container, false);
+
+        RecyclerView songListView = view.findViewById(R.id.recycler_view_songs);
+        if (songListView != null) {
+            Log.d(TAG, "songListView is not null :)");
+            songListView.setAdapter(new AlbumAdapter(albumList, onAlbumListener));
+            LinearLayoutManager layoutManager = new LinearLayoutManager(context);
+            songListView.setLayoutManager(layoutManager);
+            songListView.addItemDecoration(new DividerItemDecoration(context, layoutManager.getOrientation()));
+        } else {
+            Log.d(TAG, "songListView is null :(");
+        }
+
+        return view;
     }
 }

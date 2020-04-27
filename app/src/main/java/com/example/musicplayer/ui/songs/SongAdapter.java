@@ -4,11 +4,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,11 +16,9 @@ import com.example.musicplayer.R;
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 
     private ArrayList<Song> songList;
-    private Context context;
     private OnSongListener onSongListener;
 
-    public SongAdapter(Context setContext, ArrayList<Song> setSongList, OnSongListener setOnSongListener) {
-        context = setContext;
+    public SongAdapter(ArrayList<Song> setSongList, OnSongListener setOnSongListener) {
         songList = setSongList;
         onSongListener = setOnSongListener;
     }
@@ -42,7 +38,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         holder.parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Toast.makeText(context, currentSong.getTitle(), Toast.LENGTH_SHORT).show();
                 holder.onSongListener.onSongClick(position, holder.parentLayout);
             }
         });
