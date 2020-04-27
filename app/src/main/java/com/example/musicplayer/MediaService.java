@@ -7,7 +7,6 @@ import android.os.IBinder;
 import java.util.ArrayList;
 import android.content.ContentUris;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.PowerManager;
@@ -27,6 +26,7 @@ public class MediaService extends Service implements
     private ArrayList<Song> songList;
     private int songPosition;
     private final IBinder mediaBinder = new MediaBinder();
+    private TextViewUpdater textViewUpdater;
 
     public void onCreate(){
         super.onCreate();
@@ -48,13 +48,9 @@ public class MediaService extends Service implements
         songList = setSongList;
     }
 
-    public void setSong(int songIndex) {
-        songPosition = songIndex;
-    }
+    public void setSong(int songIndex) { songPosition = songIndex; }
 
-    public int getSongPosition() {
-        return player.getCurrentPosition();
-    }
+    public void setTextViewUpdater(TextViewUpdater setTextViewUpdater) { textViewUpdater = setTextViewUpdater; }
 
     public class MediaBinder extends Binder {
         MediaService getService() {
@@ -111,9 +107,24 @@ public class MediaService extends Service implements
         }
     }
 
+    public void playPrev() {
+        songPosition--;
+        if (songPosition < 0) { songPosition = songList.size() - 1; }
+        playSong();
+    }
+
+    public void playNext() {
+        songPosition++;
+        if (songPosition >= songList.size()) { songPosition = 0; }
+        playSong();
+    }
+
     @Override
     public void onCompletion(MediaPlayer mp) {
-
+        playNext();
+        if (textViewUpdater != null) {
+            textViewUpdater.updateTextView(songPosition);
+        }
     }
 
     @Override
@@ -125,4 +136,9 @@ public class MediaService extends Service implements
     public void onPrepared(MediaPlayer mp) {
         mp.start();
     }
+
+    public interface TextViewUpdater {
+        void updateTextView(int position);
+    }
+
 }

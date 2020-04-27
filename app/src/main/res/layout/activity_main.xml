@@ -26,6 +26,31 @@
         android:background="#000000"
         android:text="@string/songs_fragment" />
 
+    <TextView
+        android:id="@+id/now_playing_title_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="81dp"
+        android:layout_marginStart="8dp"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:text=""/>
+
+    <TextView
+        android:id="@+id/now_playing_artist_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="63dp"
+        android:layout_marginStart="18dp"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:text=""/>
+
     <Button
         android:id="@+id/play_pause_button"
         android:layout_width="48dp"
@@ -51,8 +76,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="0dp"
-        android:layout_marginEnd="0dp"
         android:background="?android:attr/windowBackground"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"

@@ -42,7 +42,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         holder.parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context, currentSong.getTitle(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(context, currentSong.getTitle(), Toast.LENGTH_SHORT).show();
                 holder.onSongListener.onSongClick(position, holder.parentLayout);
             }
         });

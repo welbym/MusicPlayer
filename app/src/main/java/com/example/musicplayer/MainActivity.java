@@ -13,7 +13,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -21,13 +20,10 @@ import androidx.fragment.app.Fragment;
 import android.media.MediaPlayer;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -46,7 +42,7 @@ import android.content.ServiceConnection;
 
 import com.example.musicplayer.MediaService.MediaBinder;
 
-public class MainActivity extends AppCompatActivity implements SongAdapter.OnSongListener {
+public class MainActivity extends AppCompatActivity implements SongAdapter.OnSongListener, MediaService.TextViewUpdater {
 
     private static final String TAG = "MyActivity";
 
@@ -54,6 +50,9 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
 
     public MediaPlayer player;
     private ArrayList<Song> songList;
+
+    private TextView nowPlayingTitleText;
+    private TextView nowPlayingArtistText;
 
     private MediaService mediaService;
     private Intent playIntent;
@@ -87,6 +86,8 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
 
             setSongList();
             setFragments();
+            nowPlayingTitleText = findViewById(R.id.now_playing_title_text);
+            nowPlayingArtistText = findViewById(R.id.now_playing_artist_text);
             findViewById(R.id.play_pause_button).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -97,6 +98,8 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
                 @Override
                 public void onClick(View v) {
                     mediaService.stopSong();
+                    nowPlayingTitleText.setText("");
+                    nowPlayingArtistText.setText("");
                 }
             });
         }
@@ -196,6 +199,14 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     public void onSongClick(int position, LinearLayout linearLayout) {
         mediaService.setSong(position);
         mediaService.playSong();
+        mediaService.setTextViewUpdater(this);
+        updateTextView(position);
+    }
+
+    @Override
+    public void updateTextView(int position) {
+        nowPlayingTitleText.setText(songList.get(position).getTitle());
+        nowPlayingArtistText.setText(songList.get(position).getArtist());
     }
 
     private ServiceConnection musicConnection = new ServiceConnection() {
