@@ -195,20 +195,6 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
         });
     }
 
-    @Override
-    public void onSongClick(int position, LinearLayout linearLayout) {
-        mediaService.setSong(position);
-        mediaService.playSong();
-        mediaService.setTextViewUpdater(this);
-        updateTextView(position);
-    }
-
-    @Override
-    public void updateTextView(int position) {
-        nowPlayingTitleText.setText(songList.get(position).getTitle());
-        nowPlayingArtistText.setText(songList.get(position).getArtist());
-    }
-
     private ServiceConnection musicConnection = new ServiceConnection() {
 
         @Override
@@ -225,6 +211,20 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
             mediaBound = false;
         }
     };
+
+    @Override
+    public void onSongClick(int position, LinearLayout linearLayout) {
+        mediaService.setSong(position);
+        mediaService.playSong();
+        mediaService.setTextViewUpdater(this);
+        updateTextView(position);
+    }
+
+    @Override
+    public void updateTextView(int position) {
+        nowPlayingTitleText.setText(songList.get(position).getTitle());
+        nowPlayingArtistText.setText(songList.get(position).getArtist());
+    }
 
     @Override
     protected void onStart() {
