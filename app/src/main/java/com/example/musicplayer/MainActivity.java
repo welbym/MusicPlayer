@@ -7,6 +7,8 @@ import android.os.Bundle;
 import com.example.musicplayer.ui.albums.Album;
 import com.example.musicplayer.ui.albums.AlbumAdapter;
 import com.example.musicplayer.ui.albums.AlbumsFragment;
+import com.example.musicplayer.ui.artists.Artist;
+import com.example.musicplayer.ui.artists.ArtistAdapter;
 import com.example.musicplayer.ui.artists.ArtistsFragment;
 import com.example.musicplayer.ui.songs.Song;
 import com.example.musicplayer.ui.songs.SongAdapter;
@@ -44,7 +46,8 @@ import android.content.ServiceConnection;
 
 import com.example.musicplayer.MediaService.MediaBinder;
 
-public class MainActivity extends AppCompatActivity implements SongAdapter.OnSongListener, AlbumAdapter.OnAlbumListener, MediaService.TextViewUpdater {
+public class MainActivity extends AppCompatActivity implements SongAdapter.OnSongListener,
+        AlbumAdapter.OnAlbumListener, ArtistAdapter.OnArtistListener, MediaService.TextViewUpdater {
 
     private static final String TAG = "MyActivity";
 
@@ -53,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     public MediaPlayer player;
     private ArrayList<Song> songList;
     private ArrayList<Album> albumList;
+    private ArrayList<Artist> artistList;
 
     private TextView nowPlayingTitleText;
     private TextView nowPlayingArtistText;
@@ -89,7 +93,9 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
 
             setSongList();
             setAlbumList();
+            setArtistList();
             setFragments();
+
             nowPlayingTitleText = findViewById(R.id.now_playing_title_text);
             nowPlayingArtistText = findViewById(R.id.now_playing_artist_text);
             findViewById(R.id.play_pause_button).setOnClickListener(new View.OnClickListener() {
@@ -197,10 +203,43 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
         }
     }
 
+    public void setArtistList() {
+        artistList = new ArrayList<>();
+        for (Song loopSong : songList) {
+            // Loop through albums to see if the List contains the Album that pertains to the Song
+            boolean containsArtist = false;
+            int indexArtist = 0;
+            if (artistList.size() > 0) {
+                for (int i = 0; i < artistList.size(); i++) {
+                    if (loopSong.getArtist().equals(artistList.get(i).getName())) {
+                        containsArtist = true;
+                        indexArtist = i;
+                    }
+                }
+            }
+            if (containsArtist) {
+                artistList.get(indexArtist).addSong(loopSong);
+            } else {
+                artistList.add(new Artist(loopSong.getArtist()));
+            }
+        }
+        sortArtistList();
+    }
+
+    public void sortArtistList() {
+        if (albumList != null) {
+            Collections.sort(artistList, new Comparator<Artist>() {
+                public int compare(Artist a, Artist b) {
+                    return a.getName().compareTo(b.getName());
+                }
+            });
+        }
+    }
+
     public void setFragments() {
         songsFragment = new SongsFragment(this, songList, this);
         albumsFragment= new AlbumsFragment(this, albumList, this);
-        artistsFragment = new ArtistsFragment();
+        artistsFragment = new ArtistsFragment(this, artistList, this);
         // Gets the navView by ID and sets it to variable
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Creates listener to detect when nav view buttons are pressed and then changes fragment accordingly
@@ -262,6 +301,14 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     @Override
     public void onAlbumClick(int position, LinearLayout linearLayout) {
         mediaService.setSongList(albumList.get(position).getSongList());
+        mediaService.setSong(0);
+        mediaService.setTextViewUpdater(this);
+        mediaService.playSong();
+    }
+
+    @Override
+    public void onArtistClick(int position, LinearLayout linearLayout) {
+        mediaService.setSongList(artistList.get(position).getSongList());
         mediaService.setSong(0);
         mediaService.setTextViewUpdater(this);
         mediaService.playSong();

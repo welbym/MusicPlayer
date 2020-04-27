@@ -1,4 +1,4 @@
-package com.example.musicplayer.ui.albums;
+package com.example.musicplayer.ui.artists;
 
 import android.util.Log;
 
@@ -6,25 +6,19 @@ import com.example.musicplayer.ui.songs.Song;
 
 import java.util.ArrayList;
 
-public class Album {
+public class Artist {
 
-    private static final String TAG = "Album";
+    private static final String TAG = "Artist";
 
-    private String album;
     private String artist;
     private ArrayList<Song> songList;
 
-    public Album(final String setTitle, final String setArtist) {
-        album = setTitle;
+    public Artist(final String setArtist) {
         artist = setArtist;
         songList = new ArrayList<>();
     }
 
-    public String getTitle() {
-        return album;
-    }
-
-    public String getArtist() { return artist; }
+    public String getName() { return artist; }
 
     public ArrayList<Song> getSongList() { return songList; }
 
