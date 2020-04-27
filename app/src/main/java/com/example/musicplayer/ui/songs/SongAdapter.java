@@ -43,7 +43,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
             @Override
             public void onClick(View view) {
                 Toast.makeText(context, currentSong.getTitle(), Toast.LENGTH_SHORT).show();
-                holder.onSongListener.onSongClick(position);
+                holder.onSongListener.onSongClick(position, holder.parentLayout);
             }
         });
     }
@@ -71,7 +71,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
     }
 
     public interface OnSongListener {
-        void onSongClick(int position);
+        void onSongClick(int position, LinearLayout linearLayout);
     }
 
 }

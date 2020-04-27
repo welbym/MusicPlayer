@@ -6,8 +6,6 @@ import android.os.Bundle;
 
 import com.example.musicplayer.ui.albums.AlbumsFragment;
 import com.example.musicplayer.ui.artists.ArtistsFragment;
-import com.example.musicplayer.ui.home.HomeFragment;
-import com.example.musicplayer.ui.playlists.PlaylistsFragment;
 import com.example.musicplayer.ui.songs.Song;
 import com.example.musicplayer.ui.songs.SongAdapter;
 import com.example.musicplayer.ui.songs.SongsFragment;
@@ -15,6 +13,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -22,8 +21,13 @@ import androidx.fragment.app.Fragment;
 import android.media.MediaPlayer;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -39,6 +43,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+
 import com.example.musicplayer.MediaService.MediaBinder;
 
 public class MainActivity extends AppCompatActivity implements SongAdapter.OnSongListener {
@@ -54,11 +59,9 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     private Intent playIntent;
     private boolean mediaBound = false;
 
-    private HomeFragment homeFragment;
     private SongsFragment songsFragment;
     private AlbumsFragment albumsFragment;
     private ArtistsFragment artistsFragment;
-    private PlaylistsFragment playlistsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,9 +83,22 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
 
         } else {
 
+            player = new MediaPlayer();
+
             setSongList();
             setFragments();
-
+            findViewById(R.id.play_pause_button).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mediaService.pauseSong();
+                }
+            });
+            findViewById(R.id.stop_button).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mediaService.stopSong();
+                }
+            });
         }
     }
 
@@ -103,11 +119,9 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     }
 
     public void setFragments() {
-        homeFragment = new HomeFragment();
         songsFragment = new SongsFragment(this, songList, this);
         albumsFragment= new AlbumsFragment();
         artistsFragment = new ArtistsFragment();
-        playlistsFragment = new PlaylistsFragment();
         // Gets the navView by ID and sets it to variable
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Creates listener to detect when nav view buttons are pressed and then changes fragment accordingly
@@ -117,9 +131,6 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
                 Fragment selectedFragment = null;
 
                 switch (menuItem.getItemId()) {
-                    case R.id.navigation_home:
-                        selectedFragment = homeFragment;
-                        break;
                     case R.id.navigation_songs:
                         selectedFragment = songsFragment;
                         break;
@@ -128,9 +139,6 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
                         break;
                     case R.id.navigation_artists:
                         selectedFragment = artistsFragment;
-                        break;
-                    case R.id.navigation_playlists:
-                        selectedFragment = playlistsFragment;
                         break;
                 }
                 if (selectedFragment != null) {
@@ -143,9 +151,8 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
             }
         });
 
-        // Sets default fragment to the HomeFragment so it is displayed right when the app is launched
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new HomeFragment()).commit();
+        // Sets default fragment to the SongsFragment so it is displayed right when the app is launched
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, songsFragment).commit();
     }
 
     public void setSongList() {
@@ -186,14 +193,8 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     }
 
     @Override
-    public void onSongClick(int position) {
+    public void onSongClick(int position, LinearLayout linearLayout) {
         mediaService.setSong(position);
-        mediaService.playSong();
-    }
-
-    public void songPicked(View view) {
-        Log.d(TAG, "Song picked");
-        mediaService.setSong(Integer.parseInt(view.getTag().toString()));
         mediaService.playSong();
     }
 
@@ -229,43 +230,6 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
         stopService(playIntent);
         mediaService = null;
         super.onDestroy();
-    }
-
-    public void play(View v) {
-        if (player == null) {
-            player = MediaPlayer.create(this, R.raw.bigdata);
-        }
-        player.start();
-        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                stopPlayer();
-            }
-        });
-    }
-
-    public void pause(View v) {
-        if (player != null) {
-            player.pause();
-        }
-    }
-
-    public void stop(View v) {
-        stopPlayer();
-    }
-
-    private void stopPlayer() {
-        if (player != null) {
-            player.release();
-            player = null;
-            Toast.makeText(this, "Player released", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        stopPlayer();
     }
 
 }

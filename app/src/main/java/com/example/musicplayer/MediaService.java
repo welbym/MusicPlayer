@@ -52,6 +52,10 @@ public class MediaService extends Service implements
         songPosition = songIndex;
     }
 
+    public int getSongPosition() {
+        return player.getCurrentPosition();
+    }
+
     public class MediaBinder extends Binder {
         MediaService getService() {
             return MediaService.this;
@@ -85,6 +89,26 @@ public class MediaService extends Service implements
             Log.e(TAG, "Error setting data source", e);
         }
         player.prepareAsync();
+    }
+
+    public void pauseSong() {
+        if (player != null) {
+            if (player.isPlaying()) {
+                player.pause();
+            } else {
+                player.start();
+            }
+        } else {
+            Log.d(TAG, "Player is null :(");
+        }
+    }
+
+    public void stopSong() {
+        if (player != null) {
+            player.stop();
+        } else {
+            Log.d(TAG, "Player is null :(");
+        }
     }
 
     @Override

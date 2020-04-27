@@ -40,7 +40,6 @@ public class SongsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_songs, container, false);
-        TextView textView = view.findViewById(R.id.text_songs);
 
         RecyclerView songListView = view.findViewById(R.id.recycler_view_songs);
         if (songListView != null) {
