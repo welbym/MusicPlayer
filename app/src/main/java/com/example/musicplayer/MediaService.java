@@ -76,6 +76,8 @@ public class MediaService extends Service implements
     public void playSong(){
         //play a song
         player.reset();
+        Log.v(TAG, "songPosition: " + songPosition);
+        Log.v(TAG, "songList: " + songList);
         Song playSong = songList.get(songPosition);
         textViewUpdater.updateTextView(songPosition);
         long currentSong = playSong.getID();
