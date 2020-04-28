@@ -79,7 +79,11 @@ public class MediaService extends Service implements
         Log.v(TAG, "songPosition: " + songPosition);
         Log.v(TAG, "songList: " + songList);
         Song playSong = songList.get(songPosition);
-        textViewUpdater.updateTextView(songPosition);
+        if (textViewUpdater != null) {
+            textViewUpdater.updateTextView(songPosition);
+        } else {
+            Log.v(TAG, "Don't do that :/");
+        }
         long currentSong = playSong.getID();
         Uri trackUri = ContentUris.withAppendedId(
                 android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currentSong);

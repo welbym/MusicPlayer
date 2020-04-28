@@ -101,15 +101,19 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
             findViewById(R.id.play_pause_button).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mediaService.pauseSong();
+                    if (mediaService != null) {
+                        mediaService.pauseSong();
+                    }
                 }
             });
             findViewById(R.id.stop_button).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mediaService.stopSong();
-                    nowPlayingTitleText.setText("");
-                    nowPlayingArtistText.setText("");
+                    if (mediaService != null) {
+                        mediaService.stopSong();
+                        nowPlayingTitleText.setText("");
+                        nowPlayingArtistText.setText("");
+                    }
                 }
             });
         }
