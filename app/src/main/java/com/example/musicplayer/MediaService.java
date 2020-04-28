@@ -96,7 +96,7 @@ public class MediaService extends Service implements
         player.prepareAsync();
     }
 
-    public void pauseSong() {
+    public void pauseOrPlaySong() {
         if (player != null) {
             if (player.isPlaying()) {
                 player.pause();
@@ -111,6 +111,7 @@ public class MediaService extends Service implements
     public void stopSong() {
         if (player != null) {
             player.stop();
+            player.reset();
         } else {
             Log.d(TAG, "Player is null :(");
         }
