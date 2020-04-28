@@ -101,8 +101,8 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
             findViewById(R.id.play_pause_button).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mediaService != null) {
-                        mediaService.pauseSong();
+                    if (mediaService != null && !(nowPlayingTitleText.getText().equals(""))) {
+                        mediaService.pauseOrPlaySong();
                     }
                 }
             });
