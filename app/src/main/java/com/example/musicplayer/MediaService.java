@@ -26,7 +26,7 @@ public class MediaService extends Service implements
     private ArrayList<Song> songList;
     private int songPosition;
     private final IBinder mediaBinder = new MediaBinder();
-    private TextViewUpdater textViewUpdater;
+    private BottomWidgetUpdater bottomWidgetUpdater;
 
     public void onCreate(){
         super.onCreate();
@@ -50,11 +50,11 @@ public class MediaService extends Service implements
 
     public void setSong(int songIndex) { songPosition = songIndex; }
 
-    public void setTextViewUpdater(TextViewUpdater setTextViewUpdater) { textViewUpdater = setTextViewUpdater; }
+    public void setTextViewUpdater(BottomWidgetUpdater setBottomWidgetUpdater) { bottomWidgetUpdater = setBottomWidgetUpdater; }
 
     public ArrayList<Song> getSongList() { return songList; }
 
-    public class MediaBinder extends Binder {
+    class MediaBinder extends Binder {
         MediaService getService() {
             return MediaService.this;
         }
@@ -79,11 +79,6 @@ public class MediaService extends Service implements
         Log.v(TAG, "songPosition: " + songPosition);
         Log.v(TAG, "songList: " + songList);
         Song playSong = songList.get(songPosition);
-        if (textViewUpdater != null) {
-            textViewUpdater.updateTextView(songPosition);
-        } else {
-            Log.v(TAG, "Don't do that :/");
-        }
         long currentSong = playSong.getID();
         Uri trackUri = ContentUris.withAppendedId(
                 android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currentSong);
@@ -94,9 +89,20 @@ public class MediaService extends Service implements
             Log.e(TAG, "Error setting data source", e);
         }
         player.prepareAsync();
+        if (bottomWidgetUpdater != null) {
+            bottomWidgetUpdater.updateTextView(songPosition);
+            bottomWidgetUpdater.updatePlayPauseButton(true);
+        } else {
+            Log.v(TAG, "bottomWidgetUpdater is null");
+        }
     }
 
     public void pauseOrPlaySong() {
+        if (bottomWidgetUpdater != null) {
+            bottomWidgetUpdater.updatePlayPauseButton(!player.isPlaying());
+        } else {
+            Log.v(TAG, "bottomWidgetUpdater is null");
+        }
         if (player != null) {
             if (player.isPlaying()) {
                 player.pause();
@@ -104,7 +110,7 @@ public class MediaService extends Service implements
                 player.start();
             }
         } else {
-            Log.d(TAG, "Player is null :(");
+            Log.d(TAG, "Player is null");
         }
     }
 
@@ -113,7 +119,12 @@ public class MediaService extends Service implements
             player.stop();
             player.reset();
         } else {
-            Log.d(TAG, "Player is null :(");
+            Log.d(TAG, "Player is null");
+        }
+        if (bottomWidgetUpdater != null) {
+            bottomWidgetUpdater.updatePlayPauseButton(false);
+        } else {
+            Log.v(TAG, "bottomWidgetUpdater is null");
         }
     }
 
@@ -132,8 +143,8 @@ public class MediaService extends Service implements
     @Override
     public void onCompletion(MediaPlayer mp) {
         playNext();
-        if (textViewUpdater != null) {
-            textViewUpdater.updateTextView(songPosition);
+        if (bottomWidgetUpdater != null) {
+            bottomWidgetUpdater.updateTextView(songPosition);
         }
     }
 
@@ -147,8 +158,9 @@ public class MediaService extends Service implements
         mp.start();
     }
 
-    public interface TextViewUpdater {
+    public interface BottomWidgetUpdater {
         void updateTextView(int position);
+        void updatePlayPauseButton(boolean isPlaying);
     }
 
 }
