@@ -26,6 +26,13 @@
         android:background="#000000"
         android:text="@string/songs_fragment" />
 
+    <SeekBar
+        android:id="@+id/song_position_bar"
+        android:layout_width="@dimen/activity_horizontal_margin"
+        android:layout_height="2dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="113dp" />
+
     <TextView
         android:id="@+id/now_playing_title_text"
         android:layout_width="match_parent"
@@ -61,7 +68,7 @@
         android:layout_alignParentEnd="true"
         android:layout_marginBottom="62dp"
         android:layout_marginEnd="52dp"
-        android:drawableEnd="@drawable/ic_play_black_24dp"/>
+        android:drawableStart="@drawable/ic_play_black_24dp"/>
 
     <Button
         android:id="@+id/stop_button"
@@ -71,7 +78,7 @@
         android:layout_alignParentEnd="true"
         android:layout_marginBottom="62dp"
         android:layout_marginEnd="2dp"
-        android:drawableEnd="@drawable/ic_stop_black_24dp"/>
+        android:drawableStart="@drawable/ic_stop_black_24dp"/>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/nav_view"

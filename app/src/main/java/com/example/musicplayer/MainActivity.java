@@ -26,7 +26,9 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,19 +49,19 @@ import android.content.ServiceConnection;
 import com.example.musicplayer.MediaService.MediaBinder;
 
 public class MainActivity extends AppCompatActivity implements SongAdapter.OnSongListener,
-        AlbumAdapter.OnAlbumListener, ArtistAdapter.OnArtistListener, MediaService.TextViewUpdater {
+        AlbumAdapter.OnAlbumListener, ArtistAdapter.OnArtistListener, MediaService.BottomWidgetUpdater {
 
-    private static final String TAG = "MyActivity";
+    private static final String TAG = "MainActivity";
 
     private static final int PERMISSION_REQUEST = 1;
 
-    public MediaPlayer player;
     private ArrayList<Song> songList;
     private ArrayList<Album> albumList;
     private ArrayList<Artist> artistList;
 
     private TextView nowPlayingTitleText;
     private TextView nowPlayingArtistText;
+    private Button playPauseButton;
 
     private MediaService mediaService;
     private Intent playIntent;
@@ -89,8 +91,6 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
 
         } else {
 
-            player = new MediaPlayer();
-
             setSongList();
             setAlbumList();
             setArtistList();
@@ -98,7 +98,9 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
 
             nowPlayingTitleText = findViewById(R.id.now_playing_title_text);
             nowPlayingArtistText = findViewById(R.id.now_playing_artist_text);
-            findViewById(R.id.play_pause_button).setOnClickListener(new View.OnClickListener() {
+            playPauseButton = findViewById(R.id.play_pause_button);
+
+            playPauseButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (mediaService != null && !(nowPlayingTitleText.getText().equals(""))) {
@@ -116,11 +118,15 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
                     }
                 }
             });
+            SeekBar songPositionBar = findViewById(R.id.song_position_bar);
+            songPositionBar.setMax(100);
+
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_REQUEST) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (ContextCompat.checkSelfPermission(MainActivity.this,
@@ -326,6 +332,19 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     public void updateTextView(int position) {
         nowPlayingTitleText.setText(mediaService.getSongList().get(position).getTitle());
         nowPlayingArtistText.setText(mediaService.getSongList().get(position).getArtist());
+    }
+
+    @Override
+    public void updatePlayPauseButton(boolean isPlaying) {
+        if (isPlaying) {
+            playPauseButton.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    getDrawable(R.drawable.ic_pause_black_24dp),
+                    null, null, null);
+        } else {
+            playPauseButton.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    getDrawable(R.drawable.ic_play_black_24dp),
+                    null, null, null);
+        }
     }
 
     @Override
