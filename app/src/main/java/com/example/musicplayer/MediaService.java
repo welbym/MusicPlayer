@@ -25,6 +25,7 @@ public class MediaService extends Service implements
     private MediaPlayer player;
     private ArrayList<Song> songList;
     private int songPosition;
+    private Uri trackUri;
     private final IBinder mediaBinder = new MediaBinder();
     private BottomWidgetUpdater bottomWidgetUpdater;
 
@@ -80,12 +81,11 @@ public class MediaService extends Service implements
         Log.v(TAG, "songList: " + songList);
         Song playSong = songList.get(songPosition);
         long currentSong = playSong.getID();
-        Uri trackUri = ContentUris.withAppendedId(
+        trackUri = ContentUris.withAppendedId(
                 android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currentSong);
         try {
             player.setDataSource(getApplicationContext(), trackUri);
-        }
-        catch(Exception e) {
+        } catch(Exception e) {
             Log.e(TAG, "Error setting data source", e);
         }
         player.prepareAsync();
@@ -99,19 +99,16 @@ public class MediaService extends Service implements
     }
 
     public void pauseOrPlaySong() {
-        if (bottomWidgetUpdater != null) {
+        try {
             bottomWidgetUpdater.updatePlayPauseButton(!player.isPlaying());
-        } else {
-            Log.v(TAG, "bottomWidgetUpdater is null");
-        }
-        if (player != null) {
+            bottomWidgetUpdater.updatePositionBar(trackUri, player);
             if (player.isPlaying()) {
                 player.pause();
             } else {
                 player.start();
             }
-        } else {
-            Log.d(TAG, "Player is null");
+        } catch (NullPointerException e) {
+            Log.d(TAG, "Something is null in pauseOrPlaySong", e);
         }
     }
 
