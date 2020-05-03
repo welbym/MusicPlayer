@@ -2,6 +2,7 @@ package com.example.musicplayer;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 
 import com.example.musicplayer.ui.albums.Album;
@@ -22,13 +23,14 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.media.MediaPlayer;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
 
     private TextView nowPlayingTitleText;
     private TextView nowPlayingArtistText;
+    private ProgressBar songPositionBar;
     private Button playPauseButton;
 
     private MediaService mediaService;
@@ -98,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
 
             nowPlayingTitleText = findViewById(R.id.now_playing_title_text);
             nowPlayingArtistText = findViewById(R.id.now_playing_artist_text);
+            songPositionBar = findViewById(R.id.song_position_bar);
             playPauseButton = findViewById(R.id.play_pause_button);
 
             playPauseButton.setOnClickListener(new View.OnClickListener() {
@@ -115,12 +119,10 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
                         mediaService.stopSong();
                         nowPlayingTitleText.setText("");
                         nowPlayingArtistText.setText("");
+                        songPositionBar.setProgress(0);
                     }
                 }
             });
-            SeekBar songPositionBar = findViewById(R.id.song_position_bar);
-            songPositionBar.setMax(100);
-
         }
     }
 
@@ -145,36 +147,46 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
         songList = new ArrayList<>();
         //retrieve song info
         ContentResolver musicResolver = getContentResolver();
-        Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
+        Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Cursor musicCursor = musicResolver.query(musicUri,
+                null, null, null, null);
 
         if (musicCursor != null && musicCursor.moveToFirst()) {
             //get columns
-            int titleColumn = musicCursor.getColumnIndex
-                    (android.provider.MediaStore.Audio.Media.TITLE);
-            int idColumn = musicCursor.getColumnIndex
-                    (android.provider.MediaStore.Audio.Media._ID);
-            int artistColumn = musicCursor.getColumnIndex
-                    (android.provider.MediaStore.Audio.Media.ARTIST);
+            int titleColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
+            int idColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media._ID);
+            int artistColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
             int albumColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
+            int trackColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TRACK);
             //add songs to list
             do {
                 long ID = musicCursor.getLong(idColumn);
                 String title = musicCursor.getString(titleColumn);
                 String artist = musicCursor.getString(artistColumn);
                 String album = musicCursor.getString(albumColumn);
-                songList.add(new Song(ID, title, artist, album));
+                int track = musicCursor.getInt(trackColumn);
+                songList.add(new Song(ID, title, artist, album, track));
             } while (musicCursor.moveToNext());
         }
         if (musicCursor != null) { musicCursor.close(); }
-        sortSongList();
+        sortSongListTitle();
     }
 
-    public void sortSongList() {
+    public void sortSongListTitle() {
         if (songList != null) {
             Collections.sort(songList, new Comparator<Song>() {
                 public int compare(Song a, Song b) {
                     return a.getTitle().compareTo(b.getTitle());
+                }
+            });
+        }
+    }
+
+    public void sortSongListTrack(ArrayList<Song> albumSongList) {
+        if (songList != null) {
+            Collections.sort(albumSongList, new Comparator<Song>() {
+                public int compare(Song a, Song b) {
+                    return a.getTrack() - b.getTrack();
                 }
             });
         }
@@ -212,28 +224,31 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
                     return a.getTitle().compareTo(b.getTitle());
                 }
             });
+            for (Album loopAlbum : albumList) {
+                sortSongListTrack(loopAlbum.getSongList());
+            }
         }
     }
 
     public void setArtistList() {
         artistList = new ArrayList<>();
-        for (Song loopSong : songList) {
-            // Loop through albums to see if the List contains the Album that pertains to the Song
+        for (Album loopAlbum : albumList) {
+            // Loop through albums to see if the List contains the Album that pertains to the Artist
             boolean containsArtist = false;
             int indexArtist = 0;
             if (artistList.size() > 0) {
                 for (int i = 0; i < artistList.size(); i++) {
-                    if (loopSong.getArtist().equals(artistList.get(i).getName())) {
+                    if (loopAlbum.getArtist().equals(artistList.get(i).getName())) {
                         containsArtist = true;
                         indexArtist = i;
                     }
                 }
             }
             if (containsArtist) {
-                artistList.get(indexArtist).addSong(loopSong);
+                artistList.get(indexArtist).addSong(loopAlbum);
             } else {
-                Artist addArtist = new Artist(loopSong.getArtist());
-                addArtist.addSong(loopSong);
+                Artist addArtist = new Artist(loopAlbum.getArtist());
+                addArtist.addSong(loopAlbum);
                 artistList.add(addArtist);
             }
         }
@@ -322,7 +337,11 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
 
     @Override
     public void onArtistClick(int position, LinearLayout linearLayout) {
-        mediaService.setSongList(artistList.get(position).getSongList());
+        ArrayList<Song> artistSongList = new ArrayList<>();
+        for (Album loopAlbum : artistList.get(position).getAlbumList()) {
+            artistSongList.addAll(loopAlbum.getSongList());
+        }
+        mediaService.setSongList(artistSongList);
         mediaService.setSong(0);
         mediaService.setTextViewUpdater(this);
         mediaService.playSong();
@@ -332,6 +351,43 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     public void updateTextView(int position) {
         nowPlayingTitleText.setText(mediaService.getSongList().get(position).getTitle());
         nowPlayingArtistText.setText(mediaService.getSongList().get(position).getArtist());
+    }
+
+    @Override
+    public void updatePositionBar(final Uri trackUri, final MediaPlayer player) {
+        Log.v(TAG, "made it to updatePositionBar");
+        try {
+            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+            mmr.setDataSource(this, trackUri);
+            int duration = Integer.parseInt(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+            songPositionBar.setMax(duration);
+        } catch (Exception e) {
+            Log.d(TAG, "Couldn't set position bar duration", e);
+        }
+        updateProgress(player);
+    }
+
+    public void updateProgress(final MediaPlayer player) {
+        Log.v(TAG, "made it to updateProgress");
+        // Thread updates songPositionBar
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                boolean first = true;
+                Log.v(TAG, "inside run function in thread");
+                while (player.isPlaying() || first) {
+                    Log.v(TAG, "while condition in thread");
+                    try {
+                       songPositionBar.setProgress(player.getCurrentPosition());
+                       Log.v(TAG, player.getCurrentPosition() + "");
+                       first = false;
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        Log.d(TAG, "Failure in thread", e);
+                    }
+                }
+            }
+        }).start();
     }
 
     @Override

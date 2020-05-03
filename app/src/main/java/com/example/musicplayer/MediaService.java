@@ -91,6 +91,7 @@ public class MediaService extends Service implements
         player.prepareAsync();
         if (bottomWidgetUpdater != null) {
             bottomWidgetUpdater.updateTextView(songPosition);
+            bottomWidgetUpdater.updatePositionBar(trackUri, player);
             bottomWidgetUpdater.updatePlayPauseButton(true);
         } else {
             Log.v(TAG, "bottomWidgetUpdater is null");
@@ -160,6 +161,7 @@ public class MediaService extends Service implements
 
     public interface BottomWidgetUpdater {
         void updateTextView(int position);
+        void updatePositionBar(Uri trackUri, MediaPlayer player);
         void updatePlayPauseButton(boolean isPlaying);
     }
 
