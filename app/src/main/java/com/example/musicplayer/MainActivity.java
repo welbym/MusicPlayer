@@ -40,6 +40,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 
 import android.net.Uri;
 import android.content.ContentResolver;
@@ -54,7 +55,8 @@ import android.content.ServiceConnection;
 import com.example.musicplayer.MediaService.MediaBinder;
 
 public class MainActivity extends AppCompatActivity implements SongAdapter.OnSongListener,
-        AlbumAdapter.OnAlbumListener, ArtistAdapter.OnArtistListener, MediaService.BottomWidgetUpdater {
+        SongAdapter.AlbumArtGetter, AlbumAdapter.AlbumArtGetter, AlbumAdapter.OnAlbumListener,
+        ArtistAdapter.OnArtistListener, MediaService.BottomWidgetUpdater {
 
     private static final String TAG = "MainActivity";
 
@@ -63,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     private ArrayList<Song> songList;
     private ArrayList<Album> albumList;
     private ArrayList<Artist> artistList;
+    private HashMap<String, Bitmap> albumArtMap;
 
     private TextView nowPlayingTitleText;
     private TextView nowPlayingArtistText;
@@ -148,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
 
     public void setSongList() {
         songList = new ArrayList<>();
+        albumArtMap = new HashMap<>();
         //retrieve song info
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -170,28 +174,27 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
             //add songs to list
             do {
                 long ID = musicCursor.getLong(idColumn);
-                String title = musicCursor.getString(titleColumn);
-                String artist = musicCursor.getString(artistColumn);
                 String album = musicCursor.getString(albumColumn);
-                int track = musicCursor.getInt(trackColumn);
 
-                // get metadata for album art
-
-                // might fail so wrapped in try catch
-                try {
-                    mmr.setDataSource(this, ContentUris.withAppendedId(
-                            android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, ID));
-                    byte[] byteArray = mmr.getEmbeddedPicture();
-                    if (byteArray != null) {
-                        songImage = Bitmap.createScaledBitmap(BitmapFactory.decodeByteArray(byteArray,
-                                0, byteArray.length), 256, 256, true);
+                if (!albumArtMap.containsKey(album)) {
+                    // get metadata for album art
+                    try {
+                        mmr.setDataSource(this, ContentUris.withAppendedId(
+                                android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, ID));
+                        byte[] byteArray = mmr.getEmbeddedPicture();
+                        if (byteArray != null) {
+                            songImage = Bitmap.createScaledBitmap(BitmapFactory.decodeByteArray(byteArray,
+                                    0, byteArray.length), 256, 256, false);
+                        }
+                    } catch (Exception e) {
+                        Log.d(TAG, "Didn't properly get album art", e);
+                        songImage = Bitmap.createBitmap(36, 36, Bitmap.Config.RGB_565);
                     }
-                } catch (Exception e) {
-                   Log.d(TAG, "Didn't properly get album art", e);
-                    songImage = Bitmap.createBitmap(36, 36, Bitmap.Config.RGB_565);
+                    albumArtMap.put(album, songImage);
                 }
 
-                songList.add(new Song(ID, title, artist, album, track, songImage));
+                songList.add(new Song(ID, musicCursor.getString(titleColumn),
+                        musicCursor.getString(artistColumn), album, musicCursor.getInt(trackColumn)));
             } while (musicCursor.moveToNext());
         }
         Log.v(TAG, "Out of the cursed loop");
@@ -236,8 +239,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
             if (containsAlbum) {
                 albumList.get(indexAlbum).addSong(loopSong);
             } else {
-                Album addAlbum = new Album(loopSong.getAlbum(),
-                        loopSong.getArtist(), loopSong.getAlbumArt());
+                Album addAlbum = new Album(loopSong.getAlbum(), loopSong.getArtist());
                 addAlbum.addSong(loopSong);
                 albumList.add(addAlbum);
             }
@@ -294,8 +296,8 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     }
 
     public void setFragments() {
-        songsFragment = new SongsFragment(this, songList, this);
-        albumsFragment= new AlbumsFragment(this, albumList, this);
+        songsFragment = new SongsFragment(this, songList, this, this);
+        albumsFragment= new AlbumsFragment(this, albumList, this, this);
         artistsFragment = new ArtistsFragment(this, artistList, this);
         // Gets the navView by ID and sets it to variable
         BottomNavigationView navView = findViewById(R.id.nav_view);
@@ -346,6 +348,11 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
             mediaBound = false;
         }
     };
+
+    @Override
+    public HashMap<String, Bitmap> getAlbumArtMap() {
+        return albumArtMap;
+    }
 
     @Override
     public void onSongClick(int position, RelativeLayout relativeLayout) {

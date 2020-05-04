@@ -1,9 +1,12 @@
 package com.example.musicplayer.ui.songs;
 
+import android.graphics.Bitmap;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import android.view.LayoutInflater;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -17,10 +20,12 @@ import com.example.musicplayer.R;
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
 
     private ArrayList<Song> songList;
+    private HashMap<String, Bitmap> albumArtMap;
     private OnSongListener onSongListener;
 
-    SongAdapter(ArrayList<Song> setSongList, OnSongListener setOnSongListener) {
+    SongAdapter(ArrayList<Song> setSongList, AlbumArtGetter albumArtGetter, OnSongListener setOnSongListener) {
         songList = setSongList;
+        albumArtMap = albumArtGetter.getAlbumArtMap();
         onSongListener = setOnSongListener;
     }
 
@@ -35,7 +40,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         final Song currentSong = songList.get(position);
         holder.songTitle.setText(currentSong.getTitle());
         holder.songArtist.setText(currentSong.getArtist());
-        holder.songAlbumArt.setImageBitmap(currentSong.getAlbumArt());
+        holder.songAlbumArt.setImageBitmap(albumArtMap.get(currentSong.getAlbum()));
 
         holder.parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,6 +74,9 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         }
     }
 
+    public interface AlbumArtGetter {
+        HashMap<String, Bitmap> getAlbumArtMap();
+    }
     public interface OnSongListener {
         void onSongClick(int position, RelativeLayout relativeLayout);
     }
