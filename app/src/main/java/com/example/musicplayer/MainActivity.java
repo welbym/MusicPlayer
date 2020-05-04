@@ -1,7 +1,10 @@
 package com.example.musicplayer;
 
 import android.Manifest;
+import android.content.ContentUris;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 
@@ -23,7 +26,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.media.MediaPlayer;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
@@ -31,6 +33,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -150,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor musicCursor = musicResolver.query(musicUri,
                 null, null, null, null);
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
 
         if (musicCursor != null && musicCursor.moveToFirst()) {
             //get columns
@@ -158,6 +162,11 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
             int artistColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
             int albumColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
             int trackColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TRACK);
+
+            // sets basic default Bitmap
+            Bitmap songImage = Bitmap.createBitmap(36, 36, Bitmap.Config.RGB_565);
+
+            Log.v(TAG, "About to enter loop, hang tight");
             //add songs to list
             do {
                 long ID = musicCursor.getLong(idColumn);
@@ -165,9 +174,27 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
                 String artist = musicCursor.getString(artistColumn);
                 String album = musicCursor.getString(albumColumn);
                 int track = musicCursor.getInt(trackColumn);
-                songList.add(new Song(ID, title, artist, album, track));
+
+                // get metadata for album art
+
+                // might fail so wrapped in try catch
+                try {
+                    mmr.setDataSource(this, ContentUris.withAppendedId(
+                            android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, ID));
+                    byte[] byteArray = mmr.getEmbeddedPicture();
+                    if (byteArray != null) {
+                        songImage = Bitmap.createScaledBitmap(BitmapFactory.decodeByteArray(byteArray,
+                                0, byteArray.length), 256, 256, true);
+                    }
+                } catch (Exception e) {
+                   Log.d(TAG, "Didn't properly get album art", e);
+                    songImage = Bitmap.createBitmap(36, 36, Bitmap.Config.RGB_565);
+                }
+
+                songList.add(new Song(ID, title, artist, album, track, songImage));
             } while (musicCursor.moveToNext());
         }
+        Log.v(TAG, "Out of the cursed loop");
         if (musicCursor != null) { musicCursor.close(); }
         sortSongListTitle();
     }
@@ -209,7 +236,8 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
             if (containsAlbum) {
                 albumList.get(indexAlbum).addSong(loopSong);
             } else {
-                Album addAlbum = new Album(loopSong.getAlbum(), loopSong.getArtist());
+                Album addAlbum = new Album(loopSong.getAlbum(),
+                        loopSong.getArtist(), loopSong.getAlbumArt());
                 addAlbum.addSong(loopSong);
                 albumList.add(addAlbum);
             }
@@ -320,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     };
 
     @Override
-    public void onSongClick(int position, LinearLayout linearLayout) {
+    public void onSongClick(int position, RelativeLayout relativeLayout) {
         mediaService.setSongList(songList);
         mediaService.setSong(position);
         mediaService.setTextViewUpdater(this);
@@ -328,7 +356,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     }
 
     @Override
-    public void onAlbumClick(int position, LinearLayout linearLayout) {
+    public void onAlbumClick(int position, RelativeLayout relativeLayout) {
         mediaService.setSongList(albumList.get(position).getSongList());
         mediaService.setSong(0);
         mediaService.setTextViewUpdater(this);
@@ -359,7 +387,8 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
         try {
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
             mmr.setDataSource(this, trackUri);
-            int duration = Integer.parseInt(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+            int duration = Integer.parseInt(
+                    mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
             songPositionBar.setMax(duration);
         } catch (Exception e) {
             Log.d(TAG, "Couldn't set position bar duration", e);

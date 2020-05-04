@@ -1,5 +1,7 @@
 package com.example.musicplayer.ui.songs;
 
+import android.graphics.Bitmap;
+
 public class Song {
 
     private long id;
@@ -7,14 +9,16 @@ public class Song {
     private String artist;
     private String album;
     private int track;
+    private Bitmap albumArt;
 
-    public Song(final long setID, final String setTitle,
-                final String setArtist, final String setAlbum, final int setTrack) {
+    public Song(final long setID, final String setTitle, final String setArtist,
+                final String setAlbum, final int setTrack, final Bitmap setAlbumArt) {
         id = setID;
         title = setTitle;
         artist = setArtist;
         album = setAlbum;
         track = setTrack;
+        albumArt = setAlbumArt;
     }
 
     public final long getID() {
@@ -32,4 +36,6 @@ public class Song {
     }
 
     public final int getTrack() { return track; }
+
+    public final Bitmap getAlbumArt() { return albumArt; }
 }

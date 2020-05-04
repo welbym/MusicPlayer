@@ -18,7 +18,7 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ViewHolder
     private ArrayList<Artist> artistList;
     private ArtistAdapter.OnArtistListener onArtistListener;
 
-    public ArtistAdapter(ArrayList<Artist> setArtistList, ArtistAdapter.OnArtistListener setOnArtistListener) {
+    ArtistAdapter(ArrayList<Artist> setArtistList, ArtistAdapter.OnArtistListener setOnArtistListener) {
         artistList = setArtistList;
         onArtistListener = setOnArtistListener;
     }
@@ -47,14 +47,14 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ViewHolder
         return artistList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
 
         LinearLayout parentLayout;
         TextView artistName;
         OnArtistListener onArtistListener;
 
 
-        protected ViewHolder(@NonNull View itemView, OnArtistListener setOnArtistListener) {
+        ViewHolder(@NonNull View itemView, OnArtistListener setOnArtistListener) {
             super(itemView);
             parentLayout = itemView.findViewById(R.id.parent_layout_artist);
             artistName = itemView.findViewById(R.id.artist_name);

@@ -5,7 +5,8 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import android.view.LayoutInflater;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,7 +19,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
     private ArrayList<Song> songList;
     private OnSongListener onSongListener;
 
-    public SongAdapter(ArrayList<Song> setSongList, OnSongListener setOnSongListener) {
+    SongAdapter(ArrayList<Song> setSongList, OnSongListener setOnSongListener) {
         songList = setSongList;
         onSongListener = setOnSongListener;
     }
@@ -34,6 +35,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         final Song currentSong = songList.get(position);
         holder.songTitle.setText(currentSong.getTitle());
         holder.songArtist.setText(currentSong.getArtist());
+        holder.songAlbumArt.setImageBitmap(currentSong.getAlbumArt());
 
         holder.parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,25 +50,27 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         return songList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
 
-        LinearLayout parentLayout;
+        RelativeLayout parentLayout;
         TextView songTitle;
         TextView songArtist;
+        ImageView songAlbumArt;
         OnSongListener onSongListener;
 
 
-        protected ViewHolder(@NonNull View itemView, OnSongListener setOnSongListener) {
+        ViewHolder(@NonNull View itemView, OnSongListener setOnSongListener) {
             super(itemView);
             parentLayout = itemView.findViewById(R.id.parent_layout_song);
             songTitle = itemView.findViewById(R.id.song_title);
             songArtist = itemView.findViewById(R.id.song_artist);
+            songAlbumArt = itemView.findViewById(R.id.album_art);
             onSongListener = setOnSongListener;
         }
     }
 
     public interface OnSongListener {
-        void onSongClick(int position, LinearLayout linearLayout);
+        void onSongClick(int position, RelativeLayout relativeLayout);
     }
 
 }

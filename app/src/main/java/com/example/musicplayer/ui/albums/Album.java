@@ -1,5 +1,6 @@
 package com.example.musicplayer.ui.albums;
 
+import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.example.musicplayer.ui.songs.Song;
@@ -12,11 +13,13 @@ public class Album {
 
     private String album;
     private String artist;
+    private Bitmap albumArt;
     private ArrayList<Song> songList;
 
-    public Album(final String setTitle, final String setArtist) {
+    public Album(final String setTitle, final String setArtist, final Bitmap setAlbumArt) {
         album = setTitle;
         artist = setArtist;
+        albumArt = setAlbumArt;
         songList = new ArrayList<>();
     }
 
@@ -25,6 +28,8 @@ public class Album {
     }
 
     public String getArtist() { return artist; }
+
+    public Bitmap getAlbumArt() { return albumArt; }
 
     public ArrayList<Song> getSongList() { return songList; }
 

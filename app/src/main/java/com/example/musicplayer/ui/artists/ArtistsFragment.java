@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.musicplayer.R;
-import com.example.musicplayer.ui.artists.Artist;
 
 import java.util.ArrayList;
 
