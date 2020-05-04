@@ -29,14 +29,14 @@ public class MediaService extends Service implements
     private final IBinder mediaBinder = new MediaBinder();
     private BottomWidgetUpdater bottomWidgetUpdater;
 
-    public void onCreate(){
+    public void onCreate() {
         super.onCreate();
         player = new MediaPlayer();
         initMusicPlayer();
         songPosition = 0;
     }
 
-    public void initMusicPlayer(){
+    public void initMusicPlayer() {
         player.setWakeMode(getApplicationContext(),
                 PowerManager.PARTIAL_WAKE_LOCK);
         player.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -74,7 +74,7 @@ public class MediaService extends Service implements
         return false;
     }
 
-    public void playSong(){
+    public void playSong() {
         //play a song
         player.reset();
         Log.v(TAG, "songPosition: " + songPosition);
@@ -126,11 +126,11 @@ public class MediaService extends Service implements
         }
     }
 
-    public void playPrev() {
-        songPosition--;
-        if (songPosition < 0) { songPosition = songList.size() - 1; }
-        playSong();
-    }
+//    public void playPrev() {
+//        songPosition--;
+//        if (songPosition < 0) { songPosition = songList.size() - 1; }
+//        playSong();
+//    }
 
     public void playNext() {
         songPosition++;
