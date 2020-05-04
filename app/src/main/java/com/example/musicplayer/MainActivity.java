@@ -5,7 +5,6 @@ import android.content.ContentUris;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 
@@ -27,7 +26,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.media.MediaPlayer;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
@@ -35,6 +33,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -347,7 +346,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     };
 
     @Override
-    public void onSongClick(int position, LinearLayout linearLayout) {
+    public void onSongClick(int position, RelativeLayout linearLayout) {
         mediaService.setSongList(songList);
         mediaService.setSong(position);
         mediaService.setTextViewUpdater(this);
