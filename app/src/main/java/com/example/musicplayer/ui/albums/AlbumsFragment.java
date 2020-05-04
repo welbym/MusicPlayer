@@ -24,12 +24,15 @@ public class AlbumsFragment extends Fragment {
 
     private Context context;
     private ArrayList<Album> albumList;
+    private AlbumAdapter.AlbumArtGetter getter;
     private AlbumAdapter.OnAlbumListener onAlbumListener;
 
-    public AlbumsFragment(Context setContext, ArrayList<Album> setAlbumList, AlbumAdapter.OnAlbumListener setOnAlbumListener) {
+    public AlbumsFragment(Context setContext, ArrayList<Album> setAlbumList,
+                          AlbumAdapter.AlbumArtGetter setGetter, AlbumAdapter.OnAlbumListener setListener) {
         context = setContext;
         albumList = setAlbumList;
-        onAlbumListener = setOnAlbumListener;
+        getter = setGetter;
+        onAlbumListener = setListener;
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -39,7 +42,7 @@ public class AlbumsFragment extends Fragment {
         RecyclerView songListView = view.findViewById(R.id.recycler_view_songs);
         if (songListView != null) {
             Log.d(TAG, "songListView is not null :)");
-            songListView.setAdapter(new AlbumAdapter(albumList, onAlbumListener));
+            songListView.setAdapter(new AlbumAdapter(albumList, getter, onAlbumListener));
             LinearLayoutManager layoutManager = new LinearLayoutManager(context);
             songListView.setLayoutManager(layoutManager);
             songListView.addItemDecoration(new DividerItemDecoration(context, layoutManager.getOrientation()));
