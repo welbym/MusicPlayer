@@ -18,7 +18,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
     private ArrayList<Album> albumList;
     private OnAlbumListener onAlbumListener;
 
-    public AlbumAdapter(ArrayList<Album> setAlbumList, AlbumAdapter.OnAlbumListener setOnAlbumListener) {
+    AlbumAdapter(ArrayList<Album> setAlbumList, AlbumAdapter.OnAlbumListener setOnAlbumListener) {
         albumList = setAlbumList;
         onAlbumListener = setOnAlbumListener;
     }
@@ -48,7 +48,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
         return albumList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
 
         LinearLayout parentLayout;
         TextView albumTitle;
@@ -56,7 +56,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
         OnAlbumListener onAlbumListener;
 
 
-        protected ViewHolder(@NonNull View itemView, OnAlbumListener setOnAlbumListener) {
+        ViewHolder(@NonNull View itemView, OnAlbumListener setOnAlbumListener) {
             super(itemView);
             parentLayout = itemView.findViewById(R.id.parent_layout_album);
             albumTitle = itemView.findViewById(R.id.album_title);
