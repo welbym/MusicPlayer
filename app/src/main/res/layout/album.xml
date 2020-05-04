@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/parent_layout_album"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
@@ -7,11 +7,22 @@
     android:padding="10dp"
     android:background="@color/songTile">
 
+    <ImageView
+        android:id="@+id/album_art"
+        android:contentDescription="@string/title_albums"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_marginStart="0dp"
+        android:layout_centerVertical="true"
+        android:background="@color/defaultAlbumArt"/>
+
     <TextView
         android:id="@+id/album_title"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
+        android:singleLine="true"
+        android:layout_marginStart="88dp"
+        android:layout_marginTop="-4dp"
         android:textColor="#FFFFFFFF"
         android:textSize="20sp"
         android:textStyle="bold" />
@@ -20,8 +31,10 @@
         android:id="@+id/album_artist"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="18dp"
+        android:singleLine="true"
+        android:layout_marginStart="102dp"
+        android:layout_marginTop="20dp"
         android:textColor="#FFFFFFFF"
         android:textSize="18sp" />
 
-</LinearLayout>
+</RelativeLayout>

@@ -162,6 +162,11 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
             int artistColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
             int albumColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
             int trackColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TRACK);
+
+            // sets basic default Bitmap
+            Bitmap songImage = Bitmap.createBitmap(36, 36, Bitmap.Config.RGB_565);
+
+            Log.v(TAG, "About to enter loop, hang tight");
             //add songs to list
             do {
                 long ID = musicCursor.getLong(idColumn);
@@ -176,23 +181,20 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
                 try {
                     mmr.setDataSource(this, ContentUris.withAppendedId(
                             android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, ID));
-                } catch(Exception e) {
-                    Log.d(TAG, "Didn't set data source correctly for album art", e);
-                }
-
-                // sets basic default Bitmap
-                Bitmap songImage = Bitmap.createBitmap(20, 20, Bitmap.Config.RGB_565);
-                try {
                     byte[] byteArray = mmr.getEmbeddedPicture();
-                    songImage = BitmapFactory.decodeByteArray(byteArray,
-                            0, byteArray.length);
+                    if (byteArray != null) {
+                        songImage = Bitmap.createScaledBitmap(BitmapFactory.decodeByteArray(byteArray,
+                                0, byteArray.length), 256, 256, true);
+                    }
                 } catch (Exception e) {
                    Log.d(TAG, "Didn't properly get album art", e);
+                    songImage = Bitmap.createBitmap(36, 36, Bitmap.Config.RGB_565);
                 }
 
                 songList.add(new Song(ID, title, artist, album, track, songImage));
             } while (musicCursor.moveToNext());
         }
+        Log.v(TAG, "Out of the cursed loop");
         if (musicCursor != null) { musicCursor.close(); }
         sortSongListTitle();
     }
@@ -346,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     };
 
     @Override
-    public void onSongClick(int position, RelativeLayout linearLayout) {
+    public void onSongClick(int position, RelativeLayout relativeLayout) {
         mediaService.setSongList(songList);
         mediaService.setSong(position);
         mediaService.setTextViewUpdater(this);
@@ -354,7 +356,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     }
 
     @Override
-    public void onAlbumClick(int position, LinearLayout linearLayout) {
+    public void onAlbumClick(int position, RelativeLayout relativeLayout) {
         mediaService.setSongList(albumList.get(position).getSongList());
         mediaService.setSong(0);
         mediaService.setTextViewUpdater(this);

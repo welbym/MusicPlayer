@@ -5,7 +5,8 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import android.view.LayoutInflater;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -34,6 +35,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
         final Album currentAlbum = albumList.get(position);
         holder.albumTitle.setText(currentAlbum.getTitle());
         holder.albumArtist.setText(currentAlbum.getArtist());
+        holder.albumArt.setImageBitmap(currentAlbum.getAlbumArt());
 
         holder.parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,9 +52,10 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        LinearLayout parentLayout;
+        RelativeLayout parentLayout;
         TextView albumTitle;
         TextView albumArtist;
+        ImageView albumArt;
         OnAlbumListener onAlbumListener;
 
 
@@ -61,12 +64,13 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
             parentLayout = itemView.findViewById(R.id.parent_layout_album);
             albumTitle = itemView.findViewById(R.id.album_title);
             albumArtist = itemView.findViewById(R.id.album_artist);
+            albumArt = itemView.findViewById(R.id.album_art);
             onAlbumListener = setOnAlbumListener;
         }
     }
 
     public interface OnAlbumListener {
-        void onAlbumClick(int position, LinearLayout linearLayout);
+        void onAlbumClick(int position, RelativeLayout relativeLayout);
     }
 
 }
