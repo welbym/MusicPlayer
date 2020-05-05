@@ -1,4 +1,4 @@
-# MusicPlayer
+# Quick Player
 Music Player project for CS 125
 
 Displays local music files with fragments for songs, albums, and artists.
