@@ -12,3 +12,5 @@ Includes simple user interface like a Play/Pause button and a Stop button.
 Utilizes recyclerviews to display the songs, artist name, and album art.
 
 Written in Java using AndroidStudio.
+
+![screenshot](https://i.ibb.co/m08zJs1/Screenshot-1588707312.png)
