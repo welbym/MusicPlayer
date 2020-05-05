@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(R.style.AppTheme);
         setContentView(R.layout.activity_main);
 
         if (ContextCompat.checkSelfPermission(MainActivity.this,
@@ -100,10 +101,16 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
 
         } else {
 
+            // Sets arrays to empty temporarily
+            songList = new ArrayList<>();
+            albumArtMap = new HashMap<>();
+            albumList = new ArrayList<>();
+            artistList = new ArrayList<>();
+
+            setFragments();
             setSongList();
             setAlbumList();
             setArtistList();
-            setFragments();
 
             nowPlayingTitleText = findViewById(R.id.now_playing_title_text);
             nowPlayingArtistText = findViewById(R.id.now_playing_artist_text);
@@ -150,8 +157,6 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     }
 
     public void setSongList() {
-        songList = new ArrayList<>();
-        albumArtMap = new HashMap<>();
         //retrieve song info
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -223,7 +228,6 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     }
 
     public void setAlbumList() {
-        albumList = new ArrayList<>();
         for (Song loopSong : songList) {
             // Loop through albums to see if the List contains the Album that pertains to the Song
             boolean containsAlbum = false;
@@ -261,7 +265,6 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     }
 
     public void setArtistList() {
-        artistList = new ArrayList<>();
         for (Album loopAlbum : albumList) {
             // Loop through albums to see if the List contains the Album that pertains to the Artist
             boolean containsArtist = false;
