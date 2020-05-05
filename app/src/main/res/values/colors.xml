@@ -5,5 +5,6 @@
     <color name="colorAccent">#D81B60</color>
     <color name="backgroundDark">#323232</color>
     <color name="songTile">#232323</color>
+    <color name="bottomNav">#DEDEDE</color>
     <color name="defaultAlbumArt">#EEE</color>
 </resources>
