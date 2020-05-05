@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Music Player</string>
+    <string name="app_name">Quick Player</string>
     <string name="title_home">Home</string>
     <string name="title_songs">Songs</string>
     <string name="title_albums">Albums</string>
