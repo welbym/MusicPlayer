@@ -13,4 +13,4 @@ Utilizes recyclerviews to display the songs, artist name, and album art.
 
 Written in Java using AndroidStudio.
 
-![screenshot](https://i.ibb.co/m08zJs1/Screenshot-1588707312.png)
+![screenshot](https://i.ibb.co/Zx2db3j/68747470733a2f2f692e6962622e636f2f6d30387a4a73312f53637265656e73686f742d313538383730373331322e706e67.png)
