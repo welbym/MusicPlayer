@@ -51,6 +51,8 @@ public class MediaService extends Service implements
 
     public void setSong(int songIndex) { songPosition = songIndex; }
 
+    public int getSongPosition() { return songPosition; }
+
     public void setTextViewUpdater(BottomWidgetUpdater setBottomWidgetUpdater) { bottomWidgetUpdater = setBottomWidgetUpdater; }
 
     public ArrayList<Song> getSongList() { return songList; }

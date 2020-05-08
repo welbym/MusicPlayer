@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 
+import com.example.musicplayer.ui.songPlaying.SongPlayingFragment;
 import com.example.musicplayer.ui.albums.Album;
 import com.example.musicplayer.ui.albums.AlbumAdapter;
 import com.example.musicplayer.ui.albums.AlbumsFragment;
@@ -31,12 +32,15 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -54,9 +58,9 @@ import android.content.ServiceConnection;
 
 import com.example.musicplayer.MediaService.MediaBinder;
 
-public class MainActivity extends AppCompatActivity implements SongAdapter.OnSongListener,
-        SongAdapter.AlbumArtGetter, AlbumAdapter.AlbumArtGetter, AlbumAdapter.OnAlbumListener,
-        ArtistAdapter.OnArtistListener, MediaService.BottomWidgetUpdater {
+public class MainActivity extends AppCompatActivity implements SongAdapter.AlbumArtGetter,
+        AlbumAdapter.AlbumArtGetter, SongAdapter.OnSongListener, AlbumAdapter.OnAlbumListener,
+        ArtistAdapter.OnArtistListener, MediaService.BottomWidgetUpdater, SongPlayingFragment.OnBackListener {
 
     private static final String TAG = "MainActivity";
 
@@ -67,10 +71,14 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     private ArrayList<Artist> artistList;
     private HashMap<String, Bitmap> albumArtMap;
 
+    private BottomNavigationView bottomNavView;
+    private FrameLayout containerFrame;
+    private FrameLayout nowPlayingFrame;
     private TextView nowPlayingTitleText;
     private TextView nowPlayingArtistText;
     private ProgressBar songPositionBar;
     private Button playPauseButton;
+    private Button stopButton;
 
     private MediaService mediaService;
     private Intent playIntent;
@@ -79,6 +87,10 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     private SongsFragment songsFragment;
     private AlbumsFragment albumsFragment;
     private ArtistsFragment artistsFragment;
+    private Fragment selectedFragment;
+
+    private SongPlayingFragment songPlayingFragment;
+    private FrameLayout songPlayingFrame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,11 +124,43 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
             setAlbumList();
             setArtistList();
 
+            // holds recycler views
+            containerFrame = findViewById(R.id.fragment_container);
+            // holds text about current song playing
+            nowPlayingFrame = findViewById(R.id.now_playing);
             nowPlayingTitleText = findViewById(R.id.now_playing_title_text);
             nowPlayingArtistText = findViewById(R.id.now_playing_artist_text);
             songPositionBar = findViewById(R.id.song_position_bar);
             playPauseButton = findViewById(R.id.play_pause_button);
+            stopButton = findViewById(R.id.stop_button);
+            bottomNavView = findViewById(R.id.nav_view);
+            // holds full screen view of current song playing
+            songPlayingFrame = findViewById(R.id.song_playing_container);
+            songPlayingFrame.setVisibility(View.GONE);
 
+            nowPlayingFrame.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.v(TAG, "Clicked now playing");
+                    if (!(nowPlayingTitleText.getText().equals(""))) {
+                        containerFrame.setVisibility(View.GONE);
+                        nowPlayingFrame.setVisibility(View.GONE);
+                        nowPlayingTitleText.setVisibility(View.GONE);
+                        nowPlayingArtistText.setVisibility(View.GONE);
+                        songPositionBar.setVisibility(View.GONE);
+                        playPauseButton.setVisibility(View.GONE);
+                        stopButton.setVisibility(View.GONE);
+                        bottomNavView.setVisibility(View.GONE);
+                        songPlayingFrame.setVisibility(View.VISIBLE);
+                        try {
+                            songPlayingFragment.setSongPlayingArt(albumArtMap.get(
+                                    songList.get(mediaService.getSongPosition()).getAlbum()));
+                        } catch (Exception e) {
+                            Log.d(TAG, "Couldn't set songPlayingArt correctly", e);
+                        }
+                    }
+                }
+            });
             playPauseButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -188,8 +232,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
                                 android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, ID));
                         byte[] byteArray = mmr.getEmbeddedPicture();
                         if (byteArray != null) {
-                            songImage = Bitmap.createScaledBitmap(BitmapFactory.decodeByteArray(byteArray,
-                                    0, byteArray.length), 256, 256, false);
+                            songImage = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
                         }
                     } catch (Exception e) {
                         Log.d(TAG, "Didn't properly get album art", e);
@@ -302,13 +345,15 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
         songsFragment = new SongsFragment(this, songList, this, this);
         albumsFragment= new AlbumsFragment(this, albumList, this, this);
         artistsFragment = new ArtistsFragment(this, artistList, this);
+        songPlayingFragment = new SongPlayingFragment(this);
+        getSupportFragmentManager().beginTransaction().replace(R.id.song_playing_container, songPlayingFragment).commit();
         // Gets the navView by ID and sets it to variable
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Creates listener to detect when nav view buttons are pressed and then changes fragment accordingly
         navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                Fragment selectedFragment = null;
+                selectedFragment = null;
 
                 switch (menuItem.getItemId()) {
                     case R.id.navigation_songs:
@@ -415,10 +460,8 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
                 boolean first = true;
                 Log.v(TAG, "inside run function in thread");
                 while (player.isPlaying() || first) {
-                    Log.v(TAG, "while condition in thread");
                     try {
                        songPositionBar.setProgress(player.getCurrentPosition());
-                       Log.v(TAG, player.getCurrentPosition() + "");
                        first = false;
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
@@ -440,6 +483,19 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
                     getDrawable(R.drawable.ic_play_black_24dp),
                     null, null, null);
         }
+    }
+
+    @Override
+    public void OnBackClick() {
+        songPlayingFrame.setVisibility(View.GONE);
+        containerFrame.setVisibility(View.VISIBLE);
+        nowPlayingFrame.setVisibility(View.VISIBLE);
+        nowPlayingTitleText.setVisibility(View.VISIBLE);
+        nowPlayingArtistText.setVisibility(View.VISIBLE);
+        songPositionBar.setVisibility(View.VISIBLE);
+        playPauseButton.setVisibility(View.VISIBLE);
+        stopButton.setVisibility(View.VISIBLE);
+        bottomNavView.setVisibility(View.VISIBLE);
     }
 
     @Override
