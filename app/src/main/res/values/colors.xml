@@ -2,9 +2,9 @@
 <resources>
     <color name="colorPrimary">#ff6060</color>
     <color name="colorPrimaryDark">#b74747</color>
-    <color name="colorAccent">#D81B60</color>
+    <color name="colorAccent">#F91120</color>
     <color name="backgroundDark">#323232</color>
+    <color name="bottomNav">#000000</color>
     <color name="songTile">#232323</color>
-    <color name="bottomNav">#DEDEDE</color>
     <color name="defaultAlbumArt">#EEE</color>
 </resources>
