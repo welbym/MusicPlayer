@@ -78,7 +78,6 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
     private TextView nowPlayingArtistText;
     private ProgressBar songPositionBar;
     private Button playPauseButton;
-    private Button stopButton;
 
     private MediaService mediaService;
     private Intent playIntent;
@@ -131,7 +130,6 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
             nowPlayingArtistText = findViewById(R.id.now_playing_artist_text);
             songPositionBar = findViewById(R.id.song_position_bar);
             playPauseButton = findViewById(R.id.play_pause_button);
-            stopButton = findViewById(R.id.stop_button);
             bottomNavView = findViewById(R.id.nav_view);
             // holds full screen view of current song playing
             songPlayingFrame = findViewById(R.id.song_playing_container);
@@ -142,17 +140,6 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
                 public void onClick(View v) {
                     if (mediaService != null && !(nowPlayingTitleText.getText().equals(""))) {
                         mediaService.pauseOrPlaySong();
-                    }
-                }
-            });
-            findViewById(R.id.stop_button).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mediaService != null) {
-                        mediaService.stopSong();
-                        nowPlayingTitleText.setText("");
-                        nowPlayingArtistText.setText("");
-                        songPositionBar.setProgress(0);
                     }
                 }
             });
@@ -167,13 +154,19 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
                         nowPlayingArtistText.setVisibility(View.GONE);
                         songPositionBar.setVisibility(View.GONE);
                         playPauseButton.setVisibility(View.GONE);
-                        stopButton.setVisibility(View.GONE);
                         bottomNavView.setVisibility(View.GONE);
                         songPlayingFrame.setVisibility(View.VISIBLE);
                         songPlayingFragment.setBackListener(true);
                     }
                 }
             });
+            songPlayingFrame.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mediaService.pauseOrPlaySong();
+                }
+            });
+
         }
     }
 
@@ -249,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         if (songList != null) {
             Collections.sort(songList, new Comparator<Song>() {
                 public int compare(Song a, Song b) {
-                    return a.getTitle().compareTo(b.getTitle());
+                    return a.getTitle().toLowerCase().compareTo(b.getTitle().toLowerCase());
                 }
             });
         }
@@ -293,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         if (albumList != null) {
             Collections.sort(albumList, new Comparator<Album>() {
                 public int compare(Album a, Album b) {
-                    return a.getTitle().compareTo(b.getTitle());
+                    return a.getArtist().toLowerCase().compareTo(b.getArtist().toLowerCase());
                 }
             });
             for (Album loopAlbum : albumList) {
@@ -330,7 +323,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         if (albumList != null) {
             Collections.sort(artistList, new Comparator<Artist>() {
                 public int compare(Artist a, Artist b) {
-                    return a.getName().compareTo(b.getName());
+                    return a.getName().toLowerCase().compareTo(b.getName().toLowerCase());
                 }
             });
         }
@@ -491,7 +484,6 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         nowPlayingArtistText.setVisibility(View.VISIBLE);
         songPositionBar.setVisibility(View.VISIBLE);
         playPauseButton.setVisibility(View.VISIBLE);
-        stopButton.setVisibility(View.VISIBLE);
         bottomNavView.setVisibility(View.VISIBLE);
         songPlayingFragment.setBackListener(false);
     }
