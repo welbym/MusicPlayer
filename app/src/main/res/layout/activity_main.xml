@@ -22,8 +22,8 @@
         android:orientation="horizontal"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="55dp"
-        android:textColor="#FFFFFF"
-        android:background="#000000"
+        android:textColor="@android:color/white"
+        android:background="@android:color/black"
         android:text="@string/songs_fragment" />
 
     <ProgressBar
@@ -44,7 +44,7 @@
         android:layout_marginBottom="88dp"
         android:singleLine="true"
         android:text=""
-        android:textColor="#FFFFFF"
+        android:textColor="@android:color/white"
         android:textSize="16sp"
         android:textStyle="bold" />
 
@@ -58,7 +58,7 @@
         android:layout_marginBottom="69dp"
         android:singleLine="true"
         android:text=""
-        android:textColor="#FFFFFF"
+        android:textColor="@android:color/white"
         android:textSize="16sp" />
 
     <Button

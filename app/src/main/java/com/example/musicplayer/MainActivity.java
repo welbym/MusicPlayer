@@ -82,7 +82,6 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
 
     private MediaService mediaService;
     private Intent playIntent;
-    private boolean mediaBound = false;
 
     private SongsFragment songsFragment;
     private AlbumsFragment albumsFragment;
@@ -138,29 +137,6 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
             songPlayingFrame = findViewById(R.id.song_playing_container);
             songPlayingFrame.setVisibility(View.GONE);
 
-            nowPlayingFrame.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.v(TAG, "Clicked now playing");
-                    if (!(nowPlayingTitleText.getText().equals(""))) {
-                        containerFrame.setVisibility(View.GONE);
-                        nowPlayingFrame.setVisibility(View.GONE);
-                        nowPlayingTitleText.setVisibility(View.GONE);
-                        nowPlayingArtistText.setVisibility(View.GONE);
-                        songPositionBar.setVisibility(View.GONE);
-                        playPauseButton.setVisibility(View.GONE);
-                        stopButton.setVisibility(View.GONE);
-                        bottomNavView.setVisibility(View.GONE);
-                        songPlayingFrame.setVisibility(View.VISIBLE);
-                        try {
-                            songPlayingFragment.setSongPlayingArt(albumArtMap.get(
-                                    songList.get(mediaService.getSongPosition()).getAlbum()));
-                        } catch (Exception e) {
-                            Log.d(TAG, "Couldn't set songPlayingArt correctly", e);
-                        }
-                    }
-                }
-            });
             playPauseButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -177,6 +153,24 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
                         nowPlayingTitleText.setText("");
                         nowPlayingArtistText.setText("");
                         songPositionBar.setProgress(0);
+                    }
+                }
+            });
+            nowPlayingFrame.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.v(TAG, "Clicked now playing");
+                    if (!(nowPlayingTitleText.getText().equals(""))) {
+                        containerFrame.setVisibility(View.GONE);
+                        nowPlayingFrame.setVisibility(View.GONE);
+                        nowPlayingTitleText.setVisibility(View.GONE);
+                        nowPlayingArtistText.setVisibility(View.GONE);
+                        songPositionBar.setVisibility(View.GONE);
+                        playPauseButton.setVisibility(View.GONE);
+                        stopButton.setVisibility(View.GONE);
+                        bottomNavView.setVisibility(View.GONE);
+                        songPlayingFrame.setVisibility(View.VISIBLE);
+                        songPlayingFragment.setBackListener(true);
                     }
                 }
             });
@@ -198,6 +192,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
                 finish();
             }
         }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     public void setSongList() {
@@ -388,19 +383,14 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
             mediaService = binder.getService();
             //pass list
             mediaService.setSongList(songList);
-            mediaBound = true;
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mediaBound = false;
-        }
+        public void onServiceDisconnected(ComponentName name) { }
     };
 
     @Override
-    public HashMap<String, Bitmap> getAlbumArtMap() {
-        return albumArtMap;
-    }
+    public HashMap<String, Bitmap> getAlbumArtMap() { return albumArtMap; }
 
     @Override
     public void onSongClick(int position, RelativeLayout relativeLayout) {
@@ -432,8 +422,15 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
 
     @Override
     public void updateTextView(int position) {
-        nowPlayingTitleText.setText(mediaService.getSongList().get(position).getTitle());
-        nowPlayingArtistText.setText(mediaService.getSongList().get(position).getArtist());
+        String title = mediaService.getSongList().get(position).getTitle();
+        String artist = mediaService.getSongList().get(position).getArtist();
+
+        nowPlayingTitleText.setText(title);
+        nowPlayingArtistText.setText(artist);
+
+        songPlayingFragment.setSongPlayingArt(albumArtMap.get(
+                mediaService.getSongList().get(position).getAlbum()));
+        songPlayingFragment.setSongPlayingText(title, artist);
     }
 
     @Override
@@ -496,6 +493,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         playPauseButton.setVisibility(View.VISIBLE);
         stopButton.setVisibility(View.VISIBLE);
         bottomNavView.setVisibility(View.VISIBLE);
+        songPlayingFragment.setBackListener(false);
     }
 
     @Override
