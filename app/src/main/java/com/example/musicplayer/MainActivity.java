@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
             setSongList();
             setAlbumList();
             setArtistList();
+            sortAlbumList();
 
             // holds recycler views
             containerFrame = findViewById(R.id.fragment_container);
@@ -235,24 +236,10 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         }
         Log.v(TAG, "Out of the cursed loop");
         if (musicCursor != null) { musicCursor.close(); }
-        sortSongListTitle();
-    }
-
-    public void sortSongListTitle() {
         if (songList != null) {
             Collections.sort(songList, new Comparator<Song>() {
                 public int compare(Song a, Song b) {
-                    return a.getTitle().toLowerCase().compareTo(b.getTitle().toLowerCase());
-                }
-            });
-        }
-    }
-
-    public void sortSongListTrack(ArrayList<Song> albumSongList) {
-        if (songList != null) {
-            Collections.sort(albumSongList, new Comparator<Song>() {
-                public int compare(Song a, Song b) {
-                    return a.getTrack() - b.getTrack();
+                    return formatWord(a.getTitle()).compareTo(formatWord(b.getTitle()));
                 }
             });
         }
@@ -279,19 +266,18 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
                 albumList.add(addAlbum);
             }
         }
-        sortAlbumList();
+        for (Album loopAlbum : albumList) {
+            sortSongListTrack(loopAlbum.getSongList());
+        }
     }
 
-    public void sortAlbumList() {
-        if (albumList != null) {
-            Collections.sort(albumList, new Comparator<Album>() {
-                public int compare(Album a, Album b) {
-                    return a.getArtist().toLowerCase().compareTo(b.getArtist().toLowerCase());
+    public void sortSongListTrack(ArrayList<Song> albumSongList) {
+        if (songList != null) {
+            Collections.sort(albumSongList, new Comparator<Song>() {
+                public int compare(Song a, Song b) {
+                    return a.getTrack() - b.getTrack();
                 }
             });
-            for (Album loopAlbum : albumList) {
-                sortSongListTrack(loopAlbum.getSongList());
-            }
         }
     }
 
@@ -309,24 +295,49 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
                 }
             }
             if (containsArtist) {
-                artistList.get(indexArtist).addSong(loopAlbum);
+                artistList.get(indexArtist).addAlbum(loopAlbum);
             } else {
                 Artist addArtist = new Artist(loopAlbum.getArtist());
-                addArtist.addSong(loopAlbum);
+                addArtist.addAlbum(loopAlbum);
                 artistList.add(addArtist);
             }
         }
-        sortArtistList();
+        Collections.sort(artistList, new Comparator<Artist>() {
+            public int compare(Artist a, Artist b) {
+                return formatWord(a.getName()).compareTo(formatWord(b.getName()));
+            }
+        });
+        for (Artist loopArtist : artistList) {
+            sortArtistListAlbum(loopArtist.getAlbumList());
+        }
     }
 
-    public void sortArtistList() {
-        if (albumList != null) {
-            Collections.sort(artistList, new Comparator<Artist>() {
-                public int compare(Artist a, Artist b) {
-                    return a.getName().toLowerCase().compareTo(b.getName().toLowerCase());
+    public void sortAlbumList() {
+        albumList.clear();
+        for (Artist loopArtist : artistList) {
+            albumList.addAll(loopArtist.getAlbumList());
+        }
+    }
+
+    public void sortArtistListAlbum(ArrayList<Album> artistAlbumList) {
+        if (artistList != null) {
+            Collections.sort(artistAlbumList, new Comparator<Album>() {
+                public int compare(Album a, Album b) {
+                    return formatWord(a.getTitle()).compareTo(formatWord(b.getTitle()));
                 }
             });
         }
+    }
+
+    public String formatWord(String a) {
+        String b = a.toLowerCase();
+        if (b.startsWith("the ")) {
+            b = b.replaceFirst("the ", "");
+        }
+        if (b.startsWith("a ")) {
+            b = b.replaceFirst("a ", "");
+        }
+        return b;
     }
 
     public void setFragments() {
