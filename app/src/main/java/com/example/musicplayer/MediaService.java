@@ -51,6 +51,8 @@ public class MediaService extends Service implements
 
     public void setSong(int songIndex) { songPosition = songIndex; }
 
+    public int getSongPosition() { return songPosition; }
+
     public void setTextViewUpdater(BottomWidgetUpdater setBottomWidgetUpdater) { bottomWidgetUpdater = setBottomWidgetUpdater; }
 
     public ArrayList<Song> getSongList() { return songList; }
@@ -126,11 +128,11 @@ public class MediaService extends Service implements
         }
     }
 
-//    public void playPrev() {
-//        songPosition--;
-//        if (songPosition < 0) { songPosition = songList.size() - 1; }
-//        playSong();
-//    }
+    public void playPrev() {
+        songPosition--;
+        if (songPosition < 0) { songPosition = songList.size() - 1; }
+        playSong();
+    }
 
     public void playNext() {
         songPosition++;

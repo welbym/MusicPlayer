@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 
+import com.example.musicplayer.ui.SongPlayingFragment;
 import com.example.musicplayer.ui.albums.Album;
 import com.example.musicplayer.ui.albums.AlbumAdapter;
 import com.example.musicplayer.ui.albums.AlbumsFragment;
@@ -28,9 +29,12 @@ import androidx.fragment.app.Fragment;
 import android.media.MediaPlayer;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -54,9 +58,9 @@ import android.content.ServiceConnection;
 
 import com.example.musicplayer.MediaService.MediaBinder;
 
-public class MainActivity extends AppCompatActivity implements SongAdapter.OnSongListener,
-        SongAdapter.AlbumArtGetter, AlbumAdapter.AlbumArtGetter, AlbumAdapter.OnAlbumListener,
-        ArtistAdapter.OnArtistListener, MediaService.BottomWidgetUpdater {
+public class MainActivity extends AppCompatActivity implements SongAdapter.AlbumArtGetter,
+        AlbumAdapter.AlbumArtGetter, SongAdapter.OnSongListener, AlbumAdapter.OnAlbumListener,
+        ArtistAdapter.OnArtistListener, MediaService.BottomWidgetUpdater, SongPlayingFragment.OnBackListener {
 
     private static final String TAG = "MainActivity";
 
@@ -67,6 +71,9 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
     private ArrayList<Artist> artistList;
     private HashMap<String, Bitmap> albumArtMap;
 
+    private BottomNavigationView bottomNavView;
+    private FrameLayout containerFrame;
+    private FrameLayout nowPlayingFrame;
     private TextView nowPlayingTitleText;
     private TextView nowPlayingArtistText;
     private ProgressBar songPositionBar;
@@ -74,11 +81,14 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
 
     private MediaService mediaService;
     private Intent playIntent;
-    private boolean mediaBound = false;
 
     private SongsFragment songsFragment;
     private AlbumsFragment albumsFragment;
     private ArtistsFragment artistsFragment;
+    private Fragment selectedFragment;
+
+    private SongPlayingFragment songPlayingFragment;
+    private FrameLayout songPlayingFrame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,11 +121,20 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
             setSongList();
             setAlbumList();
             setArtistList();
+            sortAlbumList();
 
+            // holds recycler views
+            containerFrame = findViewById(R.id.fragment_container);
+            // holds text about current song playing
+            nowPlayingFrame = findViewById(R.id.now_playing_container);
             nowPlayingTitleText = findViewById(R.id.now_playing_title_text);
             nowPlayingArtistText = findViewById(R.id.now_playing_artist_text);
             songPositionBar = findViewById(R.id.song_position_bar);
             playPauseButton = findViewById(R.id.play_pause_button);
+            bottomNavView = findViewById(R.id.nav_view);
+            // holds full screen view of current song playing
+            songPlayingFrame = findViewById(R.id.song_playing_container);
+            songPlayingFrame.setVisibility(View.GONE);
 
             playPauseButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -125,15 +144,35 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
                     }
                 }
             });
-            findViewById(R.id.stop_button).setOnClickListener(new View.OnClickListener() {
+            nowPlayingFrame.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mediaService != null) {
-                        mediaService.stopSong();
-                        nowPlayingTitleText.setText("");
-                        nowPlayingArtistText.setText("");
-                        songPositionBar.setProgress(0);
+                    Log.v(TAG, "Clicked now playing");
+                    if (!(nowPlayingTitleText.getText().equals(""))) {
+                        containerFrame.setVisibility(View.GONE);
+                        nowPlayingFrame.setVisibility(View.GONE);
+                        nowPlayingTitleText.setVisibility(View.GONE);
+                        nowPlayingArtistText.setVisibility(View.GONE);
+                        songPositionBar.setVisibility(View.GONE);
+                        playPauseButton.setVisibility(View.GONE);
+                        bottomNavView.setVisibility(View.GONE);
+                        songPlayingFrame.setVisibility(View.VISIBLE);
+                        songPlayingFragment.setBackListener(true);
                     }
+                }
+            });
+            songPlayingFrame.setOnTouchListener(new OnSwipeTouchListener(this) {
+                public void onSwipeRight() {
+                    mediaService.playNext();
+                }
+                public void onSwipeLeft() {
+                    mediaService.playPrev();
+                }
+                public void onSwipeBottom() {
+                    OnBackClick();
+                }
+                public void onSwipeTop() {
+                    mediaService.pauseOrPlaySong();
                 }
             });
         }
@@ -154,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
                 finish();
             }
         }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     public void setSongList() {
@@ -188,8 +228,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
                                 android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, ID));
                         byte[] byteArray = mmr.getEmbeddedPicture();
                         if (byteArray != null) {
-                            songImage = Bitmap.createScaledBitmap(BitmapFactory.decodeByteArray(byteArray,
-                                    0, byteArray.length), 256, 256, false);
+                            songImage = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
                         }
                     } catch (Exception e) {
                         Log.d(TAG, "Didn't properly get album art", e);
@@ -204,24 +243,10 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
         }
         Log.v(TAG, "Out of the cursed loop");
         if (musicCursor != null) { musicCursor.close(); }
-        sortSongListTitle();
-    }
-
-    public void sortSongListTitle() {
         if (songList != null) {
             Collections.sort(songList, new Comparator<Song>() {
                 public int compare(Song a, Song b) {
-                    return a.getTitle().compareTo(b.getTitle());
-                }
-            });
-        }
-    }
-
-    public void sortSongListTrack(ArrayList<Song> albumSongList) {
-        if (songList != null) {
-            Collections.sort(albumSongList, new Comparator<Song>() {
-                public int compare(Song a, Song b) {
-                    return a.getTrack() - b.getTrack();
+                    return formatWord(a.getTitle()).compareTo(formatWord(b.getTitle()));
                 }
             });
         }
@@ -248,19 +273,18 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
                 albumList.add(addAlbum);
             }
         }
-        sortAlbumList();
+        for (Album loopAlbum : albumList) {
+            sortSongListTrack(loopAlbum.getSongList());
+        }
     }
 
-    public void sortAlbumList() {
-        if (albumList != null) {
-            Collections.sort(albumList, new Comparator<Album>() {
-                public int compare(Album a, Album b) {
-                    return a.getTitle().compareTo(b.getTitle());
+    public void sortSongListTrack(ArrayList<Song> albumSongList) {
+        if (songList != null) {
+            Collections.sort(albumSongList, new Comparator<Song>() {
+                public int compare(Song a, Song b) {
+                    return a.getTrack() - b.getTrack();
                 }
             });
-            for (Album loopAlbum : albumList) {
-                sortSongListTrack(loopAlbum.getSongList());
-            }
         }
     }
 
@@ -278,37 +302,64 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
                 }
             }
             if (containsArtist) {
-                artistList.get(indexArtist).addSong(loopAlbum);
+                artistList.get(indexArtist).addAlbum(loopAlbum);
             } else {
                 Artist addArtist = new Artist(loopAlbum.getArtist());
-                addArtist.addSong(loopAlbum);
+                addArtist.addAlbum(loopAlbum);
                 artistList.add(addArtist);
             }
         }
-        sortArtistList();
+        Collections.sort(artistList, new Comparator<Artist>() {
+            public int compare(Artist a, Artist b) {
+                return formatWord(a.getName()).compareTo(formatWord(b.getName()));
+            }
+        });
+        for (Artist loopArtist : artistList) {
+            sortArtistListAlbum(loopArtist.getAlbumList());
+        }
     }
 
-    public void sortArtistList() {
-        if (albumList != null) {
-            Collections.sort(artistList, new Comparator<Artist>() {
-                public int compare(Artist a, Artist b) {
-                    return a.getName().compareTo(b.getName());
+    public void sortAlbumList() {
+        albumList.clear();
+        for (Artist loopArtist : artistList) {
+            albumList.addAll(loopArtist.getAlbumList());
+        }
+    }
+
+    public void sortArtistListAlbum(ArrayList<Album> artistAlbumList) {
+        if (artistList != null) {
+            Collections.sort(artistAlbumList, new Comparator<Album>() {
+                public int compare(Album a, Album b) {
+                    return formatWord(a.getTitle()).compareTo(formatWord(b.getTitle()));
                 }
             });
         }
+    }
+
+    public String formatWord(String a) {
+        String b = a.toLowerCase();
+        if (b.startsWith("the ")) {
+            b = b.replaceFirst("the ", "");
+        }
+        if (b.startsWith("a ")) {
+            b = b.replaceFirst("a ", "");
+        }
+        return b;
     }
 
     public void setFragments() {
         songsFragment = new SongsFragment(this, songList, this, this);
         albumsFragment= new AlbumsFragment(this, albumList, this, this);
         artistsFragment = new ArtistsFragment(this, artistList, this);
+        songPlayingFragment = new SongPlayingFragment(this);
+        getSupportFragmentManager().beginTransaction().replace(R.id.song_playing_container, songPlayingFragment).commit();
         // Gets the navView by ID and sets it to variable
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Creates listener to detect when nav view buttons are pressed and then changes fragment accordingly
         navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                Fragment selectedFragment = null;
+                selectedFragment = null;
 
                 switch (menuItem.getItemId()) {
                     case R.id.navigation_songs:
@@ -343,19 +394,14 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
             mediaService = binder.getService();
             //pass list
             mediaService.setSongList(songList);
-            mediaBound = true;
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mediaBound = false;
-        }
+        public void onServiceDisconnected(ComponentName name) { }
     };
 
     @Override
-    public HashMap<String, Bitmap> getAlbumArtMap() {
-        return albumArtMap;
-    }
+    public HashMap<String, Bitmap> getAlbumArtMap() { return albumArtMap; }
 
     @Override
     public void onSongClick(int position, RelativeLayout relativeLayout) {
@@ -387,8 +433,15 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
 
     @Override
     public void updateTextView(int position) {
-        nowPlayingTitleText.setText(mediaService.getSongList().get(position).getTitle());
-        nowPlayingArtistText.setText(mediaService.getSongList().get(position).getArtist());
+        String title = mediaService.getSongList().get(position).getTitle();
+        String artist = mediaService.getSongList().get(position).getArtist();
+
+        nowPlayingTitleText.setText(title);
+        nowPlayingArtistText.setText(artist);
+
+        songPlayingFragment.setSongPlayingArt(albumArtMap.get(
+                mediaService.getSongList().get(position).getAlbum()));
+        songPlayingFragment.setSongPlayingText(title, artist);
     }
 
     @Override
@@ -415,10 +468,8 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
                 boolean first = true;
                 Log.v(TAG, "inside run function in thread");
                 while (player.isPlaying() || first) {
-                    Log.v(TAG, "while condition in thread");
                     try {
                        songPositionBar.setProgress(player.getCurrentPosition());
-                       Log.v(TAG, player.getCurrentPosition() + "");
                        first = false;
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
@@ -440,6 +491,19 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnSon
                     getDrawable(R.drawable.ic_play_black_24dp),
                     null, null, null);
         }
+    }
+
+    @Override
+    public void OnBackClick() {
+        songPlayingFrame.setVisibility(View.GONE);
+        containerFrame.setVisibility(View.VISIBLE);
+        nowPlayingFrame.setVisibility(View.VISIBLE);
+        nowPlayingTitleText.setVisibility(View.VISIBLE);
+        nowPlayingArtistText.setVisibility(View.VISIBLE);
+        songPositionBar.setVisibility(View.VISIBLE);
+        playPauseButton.setVisibility(View.VISIBLE);
+        bottomNavView.setVisibility(View.VISIBLE);
+        songPlayingFragment.setBackListener(false);
     }
 
     @Override

@@ -22,7 +22,7 @@ public class Artist {
 
     public ArrayList<Album> getAlbumList() { return albumList; }
 
-    public void addSong(Album addAlbum) {
+    public void addAlbum(Album addAlbum) {
         if (albumList != null ) {
             albumList.add(addAlbum);
         } else {
