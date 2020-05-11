@@ -8,7 +8,7 @@ import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 
-import com.example.musicplayer.ui.songPlaying.SongPlayingFragment;
+import com.example.musicplayer.ui.SongPlayingFragment;
 import com.example.musicplayer.ui.albums.Album;
 import com.example.musicplayer.ui.albums.AlbumAdapter;
 import com.example.musicplayer.ui.albums.AlbumsFragment;
@@ -29,18 +29,18 @@ import androidx.fragment.app.Fragment;
 import android.media.MediaPlayer;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
             // holds recycler views
             containerFrame = findViewById(R.id.fragment_container);
             // holds text about current song playing
-            nowPlayingFrame = findViewById(R.id.now_playing);
+            nowPlayingFrame = findViewById(R.id.now_playing_container);
             nowPlayingTitleText = findViewById(R.id.now_playing_title_text);
             nowPlayingArtistText = findViewById(R.id.now_playing_artist_text);
             songPositionBar = findViewById(R.id.song_position_bar);
@@ -161,13 +161,20 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
                     }
                 }
             });
-            songPlayingFrame.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+            songPlayingFrame.setOnTouchListener(new OnSwipeTouchListener(this) {
+                public void onSwipeRight() {
+                    mediaService.playNext();
+                }
+                public void onSwipeLeft() {
+                    mediaService.playPrev();
+                }
+                public void onSwipeBottom() {
+                    OnBackClick();
+                }
+                public void onSwipeTop() {
                     mediaService.pauseOrPlaySong();
                 }
             });
-
         }
     }
 

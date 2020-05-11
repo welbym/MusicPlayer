@@ -1,4 +1,4 @@
-package com.example.musicplayer.ui.songPlaying;
+package com.example.musicplayer.ui;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;

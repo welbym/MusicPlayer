@@ -16,7 +16,7 @@
         android:layout_marginBottom="60dp" />
 
     <FrameLayout
-        android:id="@+id/now_playing"
+        android:id="@+id/now_playing_container"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:orientation="horizontal"
@@ -43,7 +43,6 @@
         android:layout_marginStart="10dp"
         android:layout_marginBottom="83dp"
         android:singleLine="true"
-        android:text=""
         android:textColor="@android:color/white"
         android:textSize="16sp"
         android:textStyle="bold" />
@@ -57,7 +56,6 @@
         android:layout_marginStart="18dp"
         android:layout_marginBottom="64dp"
         android:singleLine="true"
-        android:text=""
         android:textColor="@android:color/white"
         android:textSize="16sp" />
 

@@ -128,11 +128,11 @@ public class MediaService extends Service implements
         }
     }
 
-//    public void playPrev() {
-//        songPosition--;
-//        if (songPosition < 0) { songPosition = songList.size() - 1; }
-//        playSong();
-//    }
+    public void playPrev() {
+        songPosition--;
+        if (songPosition < 0) { songPosition = songList.size() - 1; }
+        playSong();
+    }
 
     public void playNext() {
         songPosition++;
