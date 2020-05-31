@@ -124,8 +124,11 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
             containerFrame = findViewById(R.id.fragment_container);
             // holds text about current song playing
             nowPlayingFrame = findViewById(R.id.now_playing_container);
+            nowPlayingFrame.setVisibility(View.GONE);
             songPositionBar = findViewById(R.id.song_position_bar);
+            songPositionBar.setVisibility(View.GONE);
             playPauseButton = findViewById(R.id.play_pause_button);
+            playPauseButton.setVisibility(View.GONE);
             bottomNavView = findViewById(R.id.nav_view);
             // holds full screen view of current song playing
             songPlayingFrame = findViewById(R.id.song_playing_container);
@@ -404,6 +407,11 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         mediaService.setSong(position);
         mediaService.setTextViewUpdater(this);
         mediaService.playSong();
+        if (nowPlayingFrame.getVisibility() == View.GONE) {
+            nowPlayingFrame.setVisibility(View.VISIBLE);
+            songPositionBar.setVisibility(View.VISIBLE);
+            playPauseButton.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
