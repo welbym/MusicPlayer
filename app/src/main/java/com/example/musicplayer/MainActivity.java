@@ -58,7 +58,8 @@ import com.example.musicplayer.MediaService.MediaBinder;
 
 public class MainActivity extends AppCompatActivity implements SongAdapter.AlbumArtGetter,
         AlbumAdapter.AlbumArtGetter, SongAdapter.OnSongListener, AlbumAdapter.OnAlbumListener,
-        ArtistAdapter.OnArtistListener, MediaService.BottomWidgetUpdater, SongPlayingFragment.OnBackListener {
+        ArtistAdapter.OnArtistListener, MediaService.BottomWidgetUpdater,
+        SongPlayingFragment.OnBackListener, SongsFragment.OnBackListener {
 
     private static final String TAG = "MainActivity";
 
@@ -82,6 +83,8 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
     private AlbumsFragment albumsFragment;
     private ArtistsFragment artistsFragment;
     private Fragment selectedFragment;
+    private SongsFragment albumSongsFragment;
+    private SongsFragment artistSongsFragment;
 
     private NowPlayingFragment nowPlayingFragment;
     private SongPlayingFragment songPlayingFragment;
@@ -122,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
 
             // holds recycler views
             containerFrame = findViewById(R.id.fragment_container);
-            // holds text about current song playing
+            // holds text and small album art on current song playing at bottom of screen
             nowPlayingFrame = findViewById(R.id.now_playing_container);
             nowPlayingFrame.setVisibility(View.GONE);
             songPositionBar = findViewById(R.id.song_position_bar);
@@ -137,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
             playPauseButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mediaService != null && !(nowPlayingFragment.nowPlayingTextBlank())) {
+                    if (mediaService != null && nowPlayingFragment.nowPlayingText()) {
                         mediaService.pauseOrPlaySong();
                     }
                 }
@@ -146,26 +149,27 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
                 @Override
                 public void onClick(View v) {
                     Log.v(TAG, "Clicked now playing");
-                    if (!(nowPlayingFragment.nowPlayingTextBlank())) {
-                        containerFrame.setVisibility(View.GONE);
-                        nowPlayingFrame.setVisibility(View.GONE);
-                        songPositionBar.setVisibility(View.GONE);
-                        playPauseButton.setVisibility(View.GONE);
-                        bottomNavView.setVisibility(View.GONE);
-                        songPlayingFrame.setVisibility(View.VISIBLE);
-                        songPlayingFragment.setBackListener(true);
-                    }
+                    openSongPlaying();
+                }
+            });
+            nowPlayingFrame.setOnTouchListener(new OnSwipeTouchListener(this) {
+                public void onSwipeRight() { mediaService.playPrev(); }
+                public void onSwipeLeft() {
+                    mediaService.playNext();
+                }
+                public void onSwipeTop() {
+                    openSongPlaying();
                 }
             });
             songPlayingFrame.setOnTouchListener(new OnSwipeTouchListener(this) {
                 public void onSwipeRight() {
-                    mediaService.playNext();
-                }
-                public void onSwipeLeft() {
                     mediaService.playPrev();
                 }
+                public void onSwipeLeft() {
+                    mediaService.playNext();
+                }
                 public void onSwipeBottom() {
-                    OnBackClick();
+                    SongPlayingFragmentOnBackClick();
                 }
                 public void onSwipeTop() {
                     mediaService.pauseOrPlaySong();
@@ -340,11 +344,14 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         if (b.startsWith("a ")) {
             b = b.replaceFirst("a ", "");
         }
+        if (b.startsWith("\"")) {
+            b = b.replaceFirst("\"", "");
+        }
         return b;
     }
 
     public void setFragments() {
-        songsFragment = new SongsFragment(this, songList, this, this);
+        songsFragment = new SongsFragment(this, this, songList, this, this);
         albumsFragment= new AlbumsFragment(this, albumList, this, this);
         artistsFragment = new ArtistsFragment(this, artistList, this);
         nowPlayingFragment = new NowPlayingFragment();
@@ -372,16 +379,29 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
                 }
                 if (selectedFragment != null) {
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
-                } else {
-                    Log.d("MainActivity", "selectedFragment is null :(");
                 }
-
                 return true;
             }
         });
 
         // Sets default fragment to the SongsFragment so it is displayed right when the app is launched
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, songsFragment).commit();
+    }
+
+    public void showNowPlayingFrame() {
+        nowPlayingFrame.setVisibility(View.VISIBLE);
+        songPositionBar.setVisibility(View.VISIBLE);
+        playPauseButton.setVisibility(View.VISIBLE);
+    }
+
+    public void openSongPlaying() {
+        containerFrame.setVisibility(View.GONE);
+        nowPlayingFrame.setVisibility(View.GONE);
+        songPositionBar.setVisibility(View.GONE);
+        playPauseButton.setVisibility(View.GONE);
+        bottomNavView.setVisibility(View.GONE);
+        songPlayingFrame.setVisibility(View.VISIBLE);
+        songPlayingFragment.setBackListener(true);
     }
 
     private ServiceConnection musicConnection = new ServiceConnection() {
@@ -402,24 +422,26 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
     public HashMap<String, Bitmap> getAlbumArtMap() { return albumArtMap; }
 
     @Override
-    public void onSongClick(int position, RelativeLayout relativeLayout) {
-        mediaService.setSongList(songList);
+    public void onSongClick(int position, ArrayList<Song> songArrayList, RelativeLayout relativeLayout) {
+        mediaService.setSongList(songArrayList);
         mediaService.setSong(position);
         mediaService.setTextViewUpdater(this);
         mediaService.playSong();
-        if (nowPlayingFrame.getVisibility() == View.GONE) {
-            nowPlayingFrame.setVisibility(View.VISIBLE);
-            songPositionBar.setVisibility(View.VISIBLE);
-            playPauseButton.setVisibility(View.VISIBLE);
+        if (nowPlayingFrame.getVisibility() == View.GONE && nowPlayingFragment.nowPlayingText()) {
+            showNowPlayingFrame();
         }
     }
 
     @Override
     public void onAlbumClick(int position, RelativeLayout relativeLayout) {
-        mediaService.setSongList(albumList.get(position).getSongList());
-        mediaService.setSong(0);
-        mediaService.setTextViewUpdater(this);
-        mediaService.playSong();
+        ArrayList<Song> albumSongList = albumList.get(position).getSongList();
+        albumSongsFragment = new SongsFragment(
+                this, this, albumSongList, this, this);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, albumSongsFragment).commit();
+        albumSongsFragment.setBackListener(true);
+        if (nowPlayingFrame.getVisibility() == View.GONE && nowPlayingFragment.nowPlayingText()) {
+            showNowPlayingFrame();
+        }
     }
 
     @Override
@@ -428,10 +450,13 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         for (Album loopAlbum : artistList.get(position).getAlbumList()) {
             artistSongList.addAll(loopAlbum.getSongList());
         }
-        mediaService.setSongList(artistSongList);
-        mediaService.setSong(0);
-        mediaService.setTextViewUpdater(this);
-        mediaService.playSong();
+        artistSongsFragment = new SongsFragment(
+                this, this, artistSongList, this, this);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, artistSongsFragment).commit();
+        artistSongsFragment.setBackListener(true);
+        if (nowPlayingFrame.getVisibility() == View.GONE && nowPlayingFragment.nowPlayingText()) {
+            showNowPlayingFrame();
+        }
     }
 
     @Override
@@ -497,14 +522,23 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
     }
 
     @Override
-    public void OnBackClick() {
-        songPlayingFrame.setVisibility(View.GONE);
-        containerFrame.setVisibility(View.VISIBLE);
-        nowPlayingFrame.setVisibility(View.VISIBLE);
-        songPositionBar.setVisibility(View.VISIBLE);
-        playPauseButton.setVisibility(View.VISIBLE);
-        bottomNavView.setVisibility(View.VISIBLE);
-        songPlayingFragment.setBackListener(false);
+    public void SongPlayingFragmentOnBackClick() {
+        if (songPlayingFrame.getVisibility() == View.VISIBLE) {
+            songPlayingFrame.setVisibility(View.GONE);
+            containerFrame.setVisibility(View.VISIBLE);
+            nowPlayingFrame.setVisibility(View.VISIBLE);
+            songPositionBar.setVisibility(View.VISIBLE);
+            playPauseButton.setVisibility(View.VISIBLE);
+            bottomNavView.setVisibility(View.VISIBLE);
+            songPlayingFragment.setBackListener(false);
+        }
+    }
+
+    @Override
+    public void SubFragmentOnBackClick() {
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+        albumSongsFragment.setBackListener(false);
+        artistSongsFragment.setBackListener(false);
     }
 
     @Override

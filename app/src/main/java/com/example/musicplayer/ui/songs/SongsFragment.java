@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -23,13 +24,24 @@ public class SongsFragment extends Fragment {
 
     private static final String TAG = "SongFragment";
 
+    private OnBackListener backListener;
+    private OnBackPressedCallback callback;
+
     private Context context;
     private ArrayList<Song> songList;
     private SongAdapter.AlbumArtGetter getter;
     private SongAdapter.OnSongListener onSongListener;
 
-    public SongsFragment(Context setContext, ArrayList<Song> setSongList,
+    public SongsFragment(OnBackListener argBackListener,
+                         Context setContext, ArrayList<Song> setSongList,
                          SongAdapter.AlbumArtGetter setGetter, SongAdapter.OnSongListener setListener) {
+        backListener = argBackListener;
+        callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                backListener.SubFragmentOnBackClick();
+            }
+        };
         context = setContext;
         songList = setSongList;
         getter = setGetter;
@@ -52,6 +64,17 @@ public class SongsFragment extends Fragment {
         }
 
         return view;
+    }
+
+    public void setBackListener(boolean subFragmentOpen) {
+        if (subFragmentOpen && isAdded()) {
+            requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
+        }
+        callback.setEnabled(subFragmentOpen);
+    }
+
+    public interface OnBackListener {
+        void SubFragmentOnBackClick();
     }
 
 }
