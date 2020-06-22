@@ -41,7 +41,7 @@ public class NowPlayingFragment extends Fragment {
         nowPlayingArtistText.setText(artist);
     }
 
-    public boolean nowPlayingTextBlank() {
-        return nowPlayingTitleText.getText().toString().equals("");
+    public boolean nowPlayingText() {
+        return !(nowPlayingTitleText.getText().toString().equals(""));
     }
 }
