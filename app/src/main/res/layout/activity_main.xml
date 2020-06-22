@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/nav_view"
-        android:layout_marginBottom="60dp" />
+        android:layout_marginBottom="0dp" />
 
     <FrameLayout
         android:id="@+id/now_playing_container"
@@ -23,8 +23,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="48dp"
         android:textColor="@android:color/white"
-        android:background="@android:color/black"
-        android:text="@string/songs_fragment" />
+        android:background="@android:color/black" />
 
     <ProgressBar
         android:id="@+id/song_position_bar"
@@ -33,31 +32,6 @@
         android:layout_height="2dp"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="106.2dp" />
-
-    <TextView
-        android:id="@+id/now_playing_title_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="10dp"
-        android:layout_marginBottom="83dp"
-        android:singleLine="true"
-        android:textColor="@android:color/white"
-        android:textSize="16sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/now_playing_artist_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="18dp"
-        android:layout_marginBottom="64dp"
-        android:singleLine="true"
-        android:textColor="@android:color/white"
-        android:textSize="16sp" />
 
     <Button
         android:id="@+id/play_pause_button"

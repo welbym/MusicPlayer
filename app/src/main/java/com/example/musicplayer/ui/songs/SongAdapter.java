@@ -45,7 +45,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         holder.parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                holder.onSongListener.onSongClick(position, holder.parentLayout);
+                holder.onSongListener.onSongClick(position, songList, holder.parentLayout);
             }
         });
     }
@@ -78,7 +78,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         HashMap<String, Bitmap> getAlbumArtMap();
     }
     public interface OnSongListener {
-        void onSongClick(int position, RelativeLayout relativeLayout);
+        void onSongClick(int position, ArrayList<Song> songArrayList, RelativeLayout relativeLayout);
     }
 
 }
