@@ -17,21 +17,18 @@ import com.example.musicplayer.R;
 
 public class SongPlayingFragment extends Fragment {
 
-    private final String TAG = "SongPlayingFragment";
-
     private OnBackListener backListener;
     private OnBackPressedCallback callback;
     private ImageView songPlayingArt;
     private TextView songPlayingTitleText;
     private TextView songPlayingArtistText;
 
-    public SongPlayingFragment(OnBackListener setBackListener) {
-        backListener = setBackListener;
+    public SongPlayingFragment(OnBackListener argBackListener) {
+        backListener = argBackListener;
         callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                backListener.OnBackClick();
-                Log.v(TAG,"Passed if statement");
+                backListener.SongPlayingFragmentOnBackClick();
             }
         };
     }
@@ -63,7 +60,7 @@ public class SongPlayingFragment extends Fragment {
     }
 
     public interface OnBackListener {
-        void OnBackClick();
+        void SongPlayingFragmentOnBackClick();
     }
 
 }
