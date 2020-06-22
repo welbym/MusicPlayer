@@ -3,14 +3,17 @@ Music Player project for CS 125
 
 Displays local music files with fragments for songs, albums, and artists.
 
-Plays selected song in song fragment.
-Plays songs in track order in album fragment.
-Plays songs in alphabetical order in artist fragment.
+Click on a song in the song fragment and it will play.
+Click on an album in the album fragment and a new list of songs from the album will appear in track order.
+Click on an artist in the artist fragment and a new list of songs from the artist will appear by alphabetical album order.
 
-Includes simple user interface like a Play/Pause button and a Stop button.
+Includes simple user interface like a Play/Pause button and swiping gestures for music control.
 
-Utilizes recyclerviews to display the songs, artist name, and album art.
+Swipe up on the bottom tab with the song playing info for a view with the album art and song info. Swipe down to exit.
+Swipe left and right on the bottom tab and in the song playing view to change songs.
+
+Utilizes recycler views to display the songs, artist name, and album art.
 
 Written in Java using AndroidStudio.
 
-![screenshot](https://i.ibb.co/Zx2db3j/68747470733a2f2f692e6962622e636f2f6d30387a4a73312f53637265656e73686f742d313538383730373331322e706e67.png)
+![screenshot](https://i.ibb.co/fxkKy9y/Screenshot-20200622-171551.jpg)
