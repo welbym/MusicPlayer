@@ -392,6 +392,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         nowPlayingFrame.setVisibility(View.VISIBLE);
         songPositionBar.setVisibility(View.VISIBLE);
         playPauseButton.setVisibility(View.VISIBLE);
+        containerFrame.setPadding(0, 0, 0, 143);
     }
 
     public void openSongPlaying() {
