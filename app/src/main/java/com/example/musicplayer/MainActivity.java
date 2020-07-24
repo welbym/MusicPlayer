@@ -388,6 +388,13 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, songsFragment).commit();
     }
 
+    public void showNowPlayingFrame() {
+        nowPlayingFrame.setVisibility(View.VISIBLE);
+        songPositionBar.setVisibility(View.VISIBLE);
+        playPauseButton.setVisibility(View.VISIBLE);
+        containerFrame.setPadding(0, 0, 0, 143);
+    }
+
     public void openSongPlaying() {
         containerFrame.setVisibility(View.GONE);
         nowPlayingFrame.setVisibility(View.GONE);
@@ -424,11 +431,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         mediaService.setTextViewUpdater(this);
         mediaService.playSong();
         if (nowPlayingFrame.getVisibility() == View.GONE && nowPlayingFragment.nowPlayingText()) {
-            // Show now playing frame
-            nowPlayingFrame.setVisibility(View.VISIBLE);
-            songPositionBar.setVisibility(View.VISIBLE);
-            playPauseButton.setVisibility(View.VISIBLE);
-            containerFrame.setPadding(0, 0, 0, 143);
+            showNowPlayingFrame();
         }
     }
 
@@ -440,6 +443,9 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         getSupportFragmentManager().beginTransaction().attach(albumSongsFragment).add(albumSongsFragment, "").commit();
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, albumSongsFragment).commit();
         albumSongsFragment.setBackListener(true);
+        if (nowPlayingFrame.getVisibility() == View.GONE && nowPlayingFragment.nowPlayingText()) {
+            showNowPlayingFrame();
+        }
     }
 
     @Override
@@ -453,6 +459,9 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         getSupportFragmentManager().beginTransaction().attach(artistSongsFragment).add(artistSongsFragment, "").commit();
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, artistSongsFragment).commit();
         artistSongsFragment.setBackListener(true);
+        if (nowPlayingFrame.getVisibility() == View.GONE && nowPlayingFragment.nowPlayingText()) {
+            showNowPlayingFrame();
+        }
     }
 
     @Override
