@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -67,7 +68,8 @@ public class SongsFragment extends Fragment {
     }
 
     public void setBackListener(boolean subFragmentOpen) {
-        if (subFragmentOpen && isAdded()) {
+        if (subFragmentOpen) {
+            Toast.makeText(context, "Deez nuts", Toast.LENGTH_SHORT).show();
             requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
         }
         callback.setEnabled(subFragmentOpen);

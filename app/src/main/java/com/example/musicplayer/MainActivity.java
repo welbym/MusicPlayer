@@ -388,12 +388,6 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, songsFragment).commit();
     }
 
-    public void showNowPlayingFrame() {
-        nowPlayingFrame.setVisibility(View.VISIBLE);
-        songPositionBar.setVisibility(View.VISIBLE);
-        playPauseButton.setVisibility(View.VISIBLE);
-    }
-
     public void openSongPlaying() {
         containerFrame.setVisibility(View.GONE);
         nowPlayingFrame.setVisibility(View.GONE);
@@ -415,7 +409,9 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name) { }
+        public void onServiceDisconnected(ComponentName name) {
+            unbindService(musicConnection);
+        }
     };
 
     @Override
@@ -428,7 +424,11 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         mediaService.setTextViewUpdater(this);
         mediaService.playSong();
         if (nowPlayingFrame.getVisibility() == View.GONE && nowPlayingFragment.nowPlayingText()) {
-            showNowPlayingFrame();
+            // Show now playing frame
+            nowPlayingFrame.setVisibility(View.VISIBLE);
+            songPositionBar.setVisibility(View.VISIBLE);
+            playPauseButton.setVisibility(View.VISIBLE);
+            containerFrame.setPadding(0, 0, 0, 143);
         }
     }
 
@@ -437,11 +437,9 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         ArrayList<Song> albumSongList = albumList.get(position).getSongList();
         albumSongsFragment = new SongsFragment(
                 this, this, albumSongList, this, this);
+        getSupportFragmentManager().beginTransaction().attach(albumSongsFragment).add(albumSongsFragment, "").commit();
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, albumSongsFragment).commit();
         albumSongsFragment.setBackListener(true);
-        if (nowPlayingFrame.getVisibility() == View.GONE && nowPlayingFragment.nowPlayingText()) {
-            showNowPlayingFrame();
-        }
     }
 
     @Override
@@ -452,11 +450,9 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         }
         artistSongsFragment = new SongsFragment(
                 this, this, artistSongList, this, this);
+        getSupportFragmentManager().beginTransaction().attach(artistSongsFragment).add(artistSongsFragment, "").commit();
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, artistSongsFragment).commit();
         artistSongsFragment.setBackListener(true);
-        if (nowPlayingFrame.getVisibility() == View.GONE && nowPlayingFragment.nowPlayingText()) {
-            showNowPlayingFrame();
-        }
     }
 
     @Override
@@ -546,8 +542,8 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         super.onStart();
         if (playIntent == null) {
             playIntent = new Intent(this, MediaService.class);
-            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
             startService(playIntent);
+            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
         }
     }
 
@@ -555,6 +551,9 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
     protected void onDestroy() {
         stopService(playIntent);
         mediaService = null;
+        if (musicConnection != null) {
+            unbindService(musicConnection);
+        }
         super.onDestroy();
     }
 
