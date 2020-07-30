@@ -1,5 +1,6 @@
 package com.example.musicplayer;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -13,8 +14,11 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 import com.example.musicplayer.ui.songs.Song;
+
+import static com.example.musicplayer.App.CHANNEL;
 
 public class MediaService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -28,12 +32,19 @@ public class MediaService extends Service implements
     private Uri trackUri;
     private final IBinder mediaBinder = new MediaBinder();
     private BottomWidgetUpdater bottomWidgetUpdater;
+    private NotificationCompat.Builder builder;
 
     public void onCreate() {
         super.onCreate();
         player = new MediaPlayer();
         initMusicPlayer();
         songPosition = 0;
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        builder = new NotificationCompat.Builder(this, CHANNEL)
+                .setSmallIcon(R.drawable.ic_play_black_24dp)
+                .setShowWhen(false)
+                .setContentIntent(pendingIntent);
     }
 
     public void initMusicPlayer() {
@@ -50,8 +61,6 @@ public class MediaService extends Service implements
     }
 
     public void setSong(int songIndex) { songPosition = songIndex; }
-
-    public int getSongPosition() { return songPosition; }
 
     public void setTextViewUpdater(BottomWidgetUpdater setBottomWidgetUpdater) { bottomWidgetUpdater = setBottomWidgetUpdater; }
 
@@ -73,6 +82,7 @@ public class MediaService extends Service implements
     public boolean onUnbind(Intent intent) {
         player.stop();
         player.release();
+        stopSelf();
         return false;
     }
 
@@ -98,6 +108,9 @@ public class MediaService extends Service implements
         } else {
             Log.v(TAG, "bottomWidgetUpdater is null");
         }
+        builder.setContentTitle(bottomWidgetUpdater.getSong(songPosition).getArtist())
+        .setContentText(bottomWidgetUpdater.getSong(songPosition).getTitle());
+        startForeground(1, builder.build());
     }
 
     public void pauseOrPlaySong() {
@@ -114,19 +127,19 @@ public class MediaService extends Service implements
         }
     }
 
-    public void stopSong() {
-        if (player != null) {
-            player.stop();
-            player.reset();
-        } else {
-            Log.d(TAG, "Player is null");
-        }
-        if (bottomWidgetUpdater != null) {
-            bottomWidgetUpdater.updatePlayPauseButton(false);
-        } else {
-            Log.v(TAG, "bottomWidgetUpdater is null");
-        }
-    }
+//    public void stopSong() {
+//        if (player != null) {
+//            player.stop();
+//            player.reset();
+//        } else {
+//            Log.d(TAG, "Player is null");
+//        }
+//        if (bottomWidgetUpdater != null) {
+//            bottomWidgetUpdater.updatePlayPauseButton(false);
+//        } else {
+//            Log.v(TAG, "bottomWidgetUpdater is null");
+//        }
+//    }
 
     public void playPrev() {
         songPosition--;
@@ -162,6 +175,7 @@ public class MediaService extends Service implements
         void updateTextView(int position);
         void updatePositionBar(Uri trackUri, MediaPlayer player);
         void updatePlayPauseButton(boolean isPlaying);
+        Song getSong(int position);
     }
 
 }

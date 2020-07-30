@@ -478,6 +478,11 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
     }
 
     @Override
+    public Song getSong(int position) {
+        return mediaService.getSongList().get(position);
+    }
+
+    @Override
     public void updatePositionBar(final Uri trackUri, final MediaPlayer player) {
         Log.v(TAG, "made it to updatePositionBar");
         try {
