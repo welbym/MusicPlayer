@@ -17,21 +17,12 @@ import com.example.musicplayer.R;
 
 public class SongPlayingFragment extends Fragment {
 
-    private OnBackListener backListener;
-    private OnBackPressedCallback callback;
     private ImageView songPlayingArt;
     private TextView songPlayingTitleText;
     private TextView songPlayingArtistText;
 
-    public SongPlayingFragment(OnBackListener argBackListener) {
-        backListener = argBackListener;
-        callback = new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                backListener.SongPlayingFragmentOnBackClick();
-            }
-        };
-    }
+
+    public SongPlayingFragment() { }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -50,17 +41,6 @@ public class SongPlayingFragment extends Fragment {
     public void setSongPlayingText(String title, String artist) {
         songPlayingTitleText.setText(title);
         songPlayingArtistText.setText(artist);
-    }
-
-    public void setBackListener(boolean songPlayingOpen) {
-        if (songPlayingOpen) {
-            requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
-        }
-        callback.setEnabled(songPlayingOpen);
-    }
-
-    public interface OnBackListener {
-        void SongPlayingFragmentOnBackClick();
     }
 
 }
