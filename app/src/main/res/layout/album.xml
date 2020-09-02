@@ -9,10 +9,10 @@
 
     <ImageView
         android:id="@+id/album_art"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:layout_centerVertical="false"
-        android:layout_marginTop="42dp"
+        android:layout_marginTop="0dp"
         android:background="@color/defaultAlbumArt"
         android:contentDescription="@string/title_albums" />
 
@@ -20,9 +20,9 @@
         android:id="@+id/album_title"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:singleLine="true"
         android:layout_marginStart="4dp"
-        android:layout_marginTop="-4dp"
+        android:layout_marginTop="200dp"
+        android:singleLine="true"
         android:textColor="#FFFFFFFF"
         android:textSize="18sp"
         android:textStyle="bold" />
@@ -32,7 +32,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="14dp"
-        android:layout_marginTop="18dp"
+        android:layout_marginTop="222dp"
         android:singleLine="true"
         android:textColor="#FFFFFFFF"
         android:textSize="15sp" />
