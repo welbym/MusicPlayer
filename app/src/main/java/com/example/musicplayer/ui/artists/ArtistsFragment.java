@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.musicplayer.R;
@@ -40,7 +40,7 @@ public class ArtistsFragment extends Fragment {
         if (songListView != null) {
             Log.d(TAG, "songListView is not null :)");
             songListView.setAdapter(new ArtistAdapter(artistList, onArtistListener));
-            GridLayoutManager layoutManager = new GridLayoutManager(context, 2);
+            LinearLayoutManager layoutManager = new LinearLayoutManager(context);
             songListView.setLayoutManager(layoutManager);
             songListView.addItemDecoration(new DividerItemDecoration(context, layoutManager.getOrientation()));
         } else {
