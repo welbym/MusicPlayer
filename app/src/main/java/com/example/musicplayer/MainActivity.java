@@ -232,14 +232,33 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
 
     public void setAlbumArtMap() {
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        int tracksLoaded = 18;
+        for (int i = 0; i < tracksLoaded; i++) {
+            Bitmap songImage = Bitmap.createBitmap(36, 36, Bitmap.Config.RGB_565);
+            if (!albumArtMap.containsKey(songList.get(i).getAlbum())) {
+                // get metadata for album art
+                try {
+                    mmr.setDataSource(this, ContentUris.withAppendedId(
+                            android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, songList.get(i).getID()));
+                    byte[] byteArray = mmr.getEmbeddedPicture();
+                    if (byteArray != null) {
+                        songImage = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+                    }
+                } catch (Exception e) {
+                    Log.d(TAG, "Didn't properly get album art", e);
+                    songImage = Bitmap.createBitmap(36, 36, Bitmap.Config.RGB_565);
+                }
+                albumArtMap.put(songList.get(i).getAlbum(), songImage);
+            }
+        }
         new Thread(() -> {
-            for (Song song : songList) {
+            for (int i = tracksLoaded; i < songList.size(); i++) {
                 Bitmap songImage = Bitmap.createBitmap(36, 36, Bitmap.Config.RGB_565);
-                if (!albumArtMap.containsKey(song.getAlbum())) {
+                if (!albumArtMap.containsKey(songList.get(i).getAlbum())) {
                     // get metadata for album art
                     try {
                         mmr.setDataSource(this, ContentUris.withAppendedId(
-                                android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, song.getID()));
+                                android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, songList.get(i).getID()));
                         byte[] byteArray = mmr.getEmbeddedPicture();
                         if (byteArray != null) {
                             songImage = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
@@ -248,9 +267,8 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
                         Log.d(TAG, "Didn't properly get album art", e);
                         songImage = Bitmap.createBitmap(36, 36, Bitmap.Config.RGB_565);
                     }
-                    albumArtMap.put(song.getAlbum(), songImage);
+                    albumArtMap.put(songList.get(i).getAlbum(), songImage);
                 }
-
             }
         }).start();
     }
