@@ -127,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
             setAlbumList();
             setArtistList();
             sortAlbumList();
+            setAlbumArtMap();
 
             // holds recycler views
             containerFrame = findViewById(R.id.fragment_container);
@@ -214,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
             int trackColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TRACK);
 
             // sets basic default Bitmap
-            Bitmap songImage = Bitmap.createBitmap(36, 36, Bitmap.Config.RGB_565);
+//            Bitmap songImage = Bitmap.createBitmap(36, 36, Bitmap.Config.RGB_565);
 
             Log.v(TAG, "About to enter loop, hang tight");
             //add songs to list
@@ -222,21 +223,21 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
                 long ID = musicCursor.getLong(idColumn);
                 String album = musicCursor.getString(albumColumn);
 
-                if (!albumArtMap.containsKey(album)) {
-                    // get metadata for album art
-                    try {
-                        mmr.setDataSource(this, ContentUris.withAppendedId(
-                                android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, ID));
-                        byte[] byteArray = mmr.getEmbeddedPicture();
-                        if (byteArray != null) {
-                            songImage = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-                        }
-                    } catch (Exception e) {
-                        Log.d(TAG, "Didn't properly get album art", e);
-                        songImage = Bitmap.createBitmap(36, 36, Bitmap.Config.RGB_565);
-                    }
-                    albumArtMap.put(album, songImage);
-                }
+//                if (!albumArtMap.containsKey(album)) {
+//                    // get metadata for album art
+//                    try {
+//                        mmr.setDataSource(this, ContentUris.withAppendedId(
+//                                android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, ID));
+//                        byte[] byteArray = mmr.getEmbeddedPicture();
+//                        if (byteArray != null) {
+//                            songImage = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+//                        }
+//                    } catch (Exception e) {
+//                        Log.d(TAG, "Didn't properly get album art", e);
+//                        songImage = Bitmap.createBitmap(36, 36, Bitmap.Config.RGB_565);
+//                    }
+//                    albumArtMap.put(album, songImage);
+//                }
 
                 songList.add(new Song(ID, musicCursor.getString(titleColumn),
                         musicCursor.getString(artistColumn), album, musicCursor.getInt(trackColumn)));
@@ -247,6 +248,31 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         if (songList != null) {
             Collections.sort(songList, (a, b) -> formatWord(a.getTitle()).compareTo(formatWord(b.getTitle())));
         }
+    }
+
+    public void setAlbumArtMap() {
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        new Thread(() -> {
+            for (Song song : songList) {
+                Bitmap songImage = Bitmap.createBitmap(36, 36, Bitmap.Config.RGB_565);
+                if (!albumArtMap.containsKey(song.getAlbum())) {
+                    // get metadata for album art
+                    try {
+                        mmr.setDataSource(this, ContentUris.withAppendedId(
+                                android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, song.getID()));
+                        byte[] byteArray = mmr.getEmbeddedPicture();
+                        if (byteArray != null) {
+                            songImage = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+                        }
+                    } catch (Exception e) {
+                        Log.d(TAG, "Didn't properly get album art", e);
+                        songImage = Bitmap.createBitmap(36, 36, Bitmap.Config.RGB_565);
+                    }
+                    albumArtMap.put(song.getAlbum(), songImage);
+                }
+
+            }
+        }).start();
     }
 
     public void setAlbumList() {
