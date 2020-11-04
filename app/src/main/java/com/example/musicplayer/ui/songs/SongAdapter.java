@@ -1,6 +1,7 @@
 package com.example.musicplayer.ui.songs;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -42,12 +43,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.ViewHolder> {
         holder.songArtist.setText(currentSong.getArtist());
         holder.songAlbumArt.setImageBitmap(albumArtMap.get(currentSong.getAlbum()));
 
-        holder.parentLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                holder.onSongListener.onSongClick(position, songList, holder.parentLayout);
-            }
-        });
+        holder.parentLayout.setOnClickListener(view -> holder.onSongListener.onSongClick(position, songList, holder.parentLayout));
     }
 
     @Override

@@ -3,25 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@id/navigation_home">
-
-    <fragment
-        android:id="@+id/navigation_home"
-        android:name="com.example.musicplayer.ui.home.HomeFragment"
-        android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+    app:startDestination="@id/navigation_songs">
 
     <fragment
         android:id="@+id/navigation_songs"
         android:name="com.example.musicplayer.ui.songs.SongsFragment"
         android:label="Songs"
-        tools:layout="@layout/fragment_albums" />
+        tools:layout="@layout/fragment_songs" />
 
     <fragment
         android:id="@+id/navigation_albums"
         android:name="com.example.musicplayer.ui.albums.AlbumsFragment"
         android:label="Albums"
-        tools:layout="@layout/fragment_playlists" />
+        tools:layout="@layout/fragment_albums" />
 
     <fragment
         android:id="@+id/navigation_artists"
@@ -29,9 +23,4 @@
         android:label="Artists"
         tools:layout="@layout/fragment_artists" />
 
-    <fragment
-        android:id="@+id/navigation_playlists"
-        android:name="com.example.musicplayer.ui.playlists.PlaylistsFragment"
-        android:label="Playlists"
-        tools:layout="@layout/fragment_playlists" />
 </navigation>
