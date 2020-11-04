@@ -144,21 +144,14 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
 
             extraFragmentOpen = false;
 
-
-            playPauseButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mediaService != null && nowPlayingFragment.nowPlayingText()) {
-                        mediaService.pauseOrPlaySong();
-                    }
+            playPauseButton.setOnClickListener(v -> {
+                if (mediaService != null && nowPlayingFragment.nowPlayingText()) {
+                    mediaService.pauseOrPlaySong();
                 }
             });
-            nowPlayingFrame.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.v(TAG, "Clicked now playing");
-                    openSongPlaying();
-                }
+            nowPlayingFrame.setOnClickListener(v -> {
+                Log.v(TAG, "Clicked now playing");
+                openSongPlaying();
             });
             nowPlayingFrame.setOnTouchListener(new OnSwipeTouchListener(this) {
                 public void onSwipeRight() { mediaService.playPrev(); }
@@ -252,11 +245,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         Log.v(TAG, "Out of the cursed loop");
         if (musicCursor != null) { musicCursor.close(); }
         if (songList != null) {
-            Collections.sort(songList, new Comparator<Song>() {
-                public int compare(Song a, Song b) {
-                    return formatWord(a.getTitle()).compareTo(formatWord(b.getTitle()));
-                }
-            });
+            Collections.sort(songList, (a, b) -> formatWord(a.getTitle()).compareTo(formatWord(b.getTitle())));
         }
     }
 
@@ -288,11 +277,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
 
     public void sortSongListTrack(ArrayList<Song> albumSongList) {
         if (songList != null) {
-            Collections.sort(albumSongList, new Comparator<Song>() {
-                public int compare(Song a, Song b) {
-                    return a.getTrack() - b.getTrack();
-                }
-            });
+            Collections.sort(albumSongList, (a, b) -> a.getTrack() - b.getTrack());
         }
     }
 
@@ -317,11 +302,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
                 artistList.add(addArtist);
             }
         }
-        Collections.sort(artistList, new Comparator<Artist>() {
-            public int compare(Artist a, Artist b) {
-                return formatWord(a.getName()).compareTo(formatWord(b.getName()));
-            }
-        });
+        Collections.sort(artistList, (a, b) -> formatWord(a.getName()).compareTo(formatWord(b.getName())));
         for (Artist loopArtist : artistList) {
             sortArtistListAlbum(loopArtist.getAlbumList());
         }
@@ -336,11 +317,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
 
     public void sortArtistListAlbum(ArrayList<Album> artistAlbumList) {
         if (artistList != null) {
-            Collections.sort(artistAlbumList, new Comparator<Album>() {
-                public int compare(Album a, Album b) {
-                    return formatWord(a.getTitle()).compareTo(formatWord(b.getTitle()));
-                }
-            });
+            Collections.sort(artistAlbumList, (a, b) -> formatWord(a.getTitle()).compareTo(formatWord(b.getTitle())));
         }
     }
 
@@ -369,27 +346,24 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         // Gets the navView by ID and sets it to variable
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Creates listener to detect when nav view buttons are pressed and then changes fragment accordingly
-        navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                selectedFragment = null;
+        navView.setOnNavigationItemSelectedListener(menuItem -> {
+            selectedFragment = null;
 
-                switch (menuItem.getItemId()) {
-                    case R.id.navigation_songs:
-                        selectedFragment = songsFragment;
-                        break;
-                    case R.id.navigation_albums:
-                        selectedFragment = albumsFragment;
-                        break;
-                    case R.id.navigation_artists:
-                        selectedFragment = artistsFragment;
-                        break;
-                }
-                if (selectedFragment != null) {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
-                }
-                return true;
+            switch (menuItem.getItemId()) {
+                case R.id.navigation_songs:
+                    selectedFragment = songsFragment;
+                    break;
+                case R.id.navigation_albums:
+                    selectedFragment = albumsFragment;
+                    break;
+                case R.id.navigation_artists:
+                    selectedFragment = artistsFragment;
+                    break;
             }
+            if (selectedFragment != null) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+            }
+            return true;
         });
 
         // Sets default fragment to the SongsFragment so it is displayed right when the app is launched
@@ -505,19 +479,16 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
     public void updateProgress(final MediaPlayer player) {
         Log.v(TAG, "made it to updateProgress");
         // Thread updates songPositionBar
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                boolean first = true;
-                Log.v(TAG, "inside run function in thread");
-                while (player.isPlaying() || first) {
-                    try {
-                       songPositionBar.setProgress(player.getCurrentPosition());
-                       first = false;
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        Log.d(TAG, "Failure in thread", e);
-                    }
+        new Thread(() -> {
+            boolean first = true;
+            Log.v(TAG, "inside run function in thread");
+            while (player.isPlaying() || first) {
+                try {
+                   songPositionBar.setProgress(player.getCurrentPosition());
+                   first = false;
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Log.d(TAG, "Failure in thread", e);
                 }
             }
         }).start();

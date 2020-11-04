@@ -42,12 +42,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ViewHolder> 
         holder.albumArtist.setText(currentAlbum.getArtist());
         holder.albumArt.setImageBitmap(albumArtMap.get(currentAlbum.getTitle()));
 
-        holder.parentLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                holder.onAlbumListener.onAlbumClick(position, holder.parentLayout);
-            }
-        });
+        holder.parentLayout.setOnClickListener(view -> holder.onAlbumListener.onAlbumClick(position, holder.parentLayout));
     }
 
     @Override
