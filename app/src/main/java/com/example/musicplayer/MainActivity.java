@@ -204,7 +204,6 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor musicCursor = musicResolver.query(musicUri,
                 null, null, null, null);
-        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
 
         if (musicCursor != null && musicCursor.moveToFirst()) {
             //get columns
@@ -214,30 +213,11 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.Album
             int albumColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
             int trackColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TRACK);
 
-            // sets basic default Bitmap
-//            Bitmap songImage = Bitmap.createBitmap(36, 36, Bitmap.Config.RGB_565);
-
             Log.v(TAG, "About to enter loop, hang tight");
             //add songs to list
             do {
                 long ID = musicCursor.getLong(idColumn);
                 String album = musicCursor.getString(albumColumn);
-
-//                if (!albumArtMap.containsKey(album)) {
-//                    // get metadata for album art
-//                    try {
-//                        mmr.setDataSource(this, ContentUris.withAppendedId(
-//                                android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, ID));
-//                        byte[] byteArray = mmr.getEmbeddedPicture();
-//                        if (byteArray != null) {
-//                            songImage = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-//                        }
-//                    } catch (Exception e) {
-//                        Log.d(TAG, "Didn't properly get album art", e);
-//                        songImage = Bitmap.createBitmap(36, 36, Bitmap.Config.RGB_565);
-//                    }
-//                    albumArtMap.put(album, songImage);
-//                }
 
                 songList.add(new Song(ID, musicCursor.getString(titleColumn),
                         musicCursor.getString(artistColumn), album, musicCursor.getInt(trackColumn)));
